@@ -238,19 +238,21 @@
     border-radius:12px;
     background:#fff;
     min-height:52px;
+    cursor:pointer;
+    transition:border-color .15s, box-shadow .15s;
   }
+  .picker-chip:hover{border-color:var(--rust); box-shadow:0 2px 10px rgba(31,42,52,0.1);}
+  .picker-chip:hover .chip-change{color:var(--rust-deep);}
   .picker-chip .chip-info{flex:1; min-width:0;}
   .chip-change{
     font-family:'IBM Plex Mono',monospace;
     font-size:10.5px;
     color:var(--ink-faint);
-    background:none; border:none; cursor:pointer;
     padding:6px 8px;
     border-radius:8px;
-    transition:background .15s, color .15s;
+    transition:color .15s;
     white-space:nowrap;
   }
-  .chip-change:hover{background:var(--paper-deep); color:var(--ink);}
   .picker-selected{
     margin-top:10px;
     display:flex;
@@ -289,6 +291,7 @@
   .swap-btn svg{width:20px;height:20px;}
 
   .dropdown{
+    display:none;
     position:absolute;
     top:calc(100% + 6px);
     left:0;right:0;
@@ -597,7 +600,7 @@
         </div>
         <div class="picker-mid">
           <button class="swap-btn" id="swapBtn" aria-label="Swap the two people" title="Swap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.8"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.8"><path d="M16 7H4M4 7l4-4M4 7l4 4M8 17h12M20 17l-4-4M20 17l-4 4"/></svg>
           </button>
         </div>
         <div class="picker" id="targetPicker">
@@ -1015,17 +1018,23 @@ function renderSelected(container, id){
     return;
   }
   if(input) input.style.display='none';
-  container.innerHTML = `<div class="picker-chip">
+  container.innerHTML = `<div class="picker-chip" role="button" tabindex="0" title="Pick someone else"
+      aria-label="Currently ${displayName(id)} — click to pick someone else">
     ${avatarHTML(id)}
     <div class="chip-info">
       <div class="selected-name">${displayName(id)}</div>
       <div class="selected-meta">${lifespan(id)}${person(id).birthPlace ? ' &middot; '+person(id).birthPlace : ''}</div>
     </div>
-    <button class="chip-change" type="button">CHANGE</button>
+    <span class="chip-change">CHANGE</span>
   </div>`;
-  container.querySelector('.chip-change').addEventListener('click', ()=>{
+  const chip = container.querySelector('.picker-chip');
+  const enterEdit = ()=>{
     container.innerHTML='';
     if(input){ input.style.display=''; input.value=''; input.focus(); }
+  };
+  chip.addEventListener('click', enterEdit);
+  chip.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' '){ e.preventDefault(); enterEdit(); }
   });
 }
 
@@ -1276,8 +1285,11 @@ function setTarget(id){
     setTimeout(()=>{
       const id = get();
       const selEl = document.getElementById(sel);
-      if(id && !selEl.innerHTML) renderSelected(selEl, id);
-    }, 180);
+      const inputEl = document.getElementById(inp);
+      if(id && !selEl.innerHTML && !inputEl.value.trim() && document.activeElement !== inputEl){
+        renderSelected(selEl, id);
+      }
+    }, 250);
   });
 });
 document.getElementById('swapBtn').addEventListener('click', ()=>{
