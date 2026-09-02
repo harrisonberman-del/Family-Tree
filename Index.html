@@ -35,13 +35,75 @@
     line-height:1.5;
     min-height:100vh;
   }
-  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+  .wrap{max-width:960px;margin:0 auto;padding:28px 20px 80px;}
+  button{font:inherit;}
+  :focus-visible{outline:2px solid var(--rust); outline-offset:2px;}
+
+  /* ---------- Gate ---------- */
+  #gate{
+    position:fixed; inset:0; z-index:1000;
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.3), transparent 55%),
+      var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  #gate.hidden{display:none;}
+  .gate-card{
+    background:var(--card);
+    border:1px solid var(--ink);
+    max-width:380px; width:100%;
+    padding:32px 28px 28px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(31,42,52,0.18);
+  }
+  .gate-seal{
+    width:44px;height:44px;border-radius:50%;
+    border:2px solid var(--brass);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 14px;
+    color:var(--brass);
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:18px;
+  }
+  .gate-title{font-family:'Fraunces',serif;font-weight:600;font-size:22px;margin-bottom:6px;}
+  .gate-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);letter-spacing:0.04em;margin-bottom:22px;}
+  .gate-question{font-size:15.5px;margin-bottom:12px;color:var(--ink);}
+  #gateInput{
+    width:100%;
+    font-family:'Newsreader',serif;
+    font-size:16px;
+    padding:10px 12px;
+    border:1px solid var(--ink);
+    background:#fffdf6;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  .gate-error{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--rust-deep);
+    min-height:16px;
+    margin-bottom:10px;
+  }
+  .gate-note{font-size:11.5px;color:var(--ink-faint);margin-top:16px;font-family:'IBM Plex Mono',monospace;line-height:1.5;}
+  @keyframes shake{
+    10%,90%{transform:translateX(-1px);}
+    20%,80%{transform:translateX(2px);}
+    30%,50%,70%{transform:translateX(-4px);}
+    40%,60%{transform:translateX(4px);}
+  }
+  .gate-card.shake{animation:shake 0.5s;}
+
+  #appRoot{display:none;}
+  #appRoot.unlocked{display:block;}
 
   /* ---------- Header ---------- */
   header.masthead{
     border-bottom:2px solid var(--ink);
     padding-bottom:18px;
-    margin-bottom:28px;
+    margin-bottom:22px;
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
@@ -73,20 +135,58 @@
   }
   .masthead-count b{color:var(--ink);font-size:15px;}
 
-  /* ---------- Panels ---------- */
-  .panel{
-    background:var(--card);
+  /* ---------- Tabs ---------- */
+  .tabbar{
+    display:flex;
+    gap:4px;
+    margin-bottom:0;
+    padding-left:4px;
+  }
+  .tab-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:0.03em;
+    background:var(--paper-deep);
+    color:var(--ink-soft);
     border:1px solid var(--card-edge);
-    box-shadow:var(--shadow);
-    padding:22px 22px 24px;
+    border-bottom:none;
+    padding:10px 16px 9px;
+    cursor:pointer;
+    position:relative;
+    top:1px;
+    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+  }
+  .tab-btn:hover{color:var(--ink);}
+  .tab-btn.active{
+    background:var(--card);
+    color:var(--ink);
+    border-color:var(--ink);
+    font-weight:600;
+    z-index:2;
+  }
+  .tab-panels-frame{
+    border:1px solid var(--ink);
+    background:var(--card);
+    padding:22px;
     margin-bottom:22px;
   }
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+
+  /* ---------- Panels (generic) ---------- */
   .panel-label{
     font-family:'IBM Plex Mono', monospace;
     font-size:11px;
     letter-spacing:0.06em;
     color:var(--brass);
     margin-bottom:12px;
+  }
+  section.panel{
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    box-shadow:var(--shadow);
+    padding:22px 22px 24px;
+    margin-bottom:22px;
   }
 
   /* ---------- Picker rows ---------- */
@@ -117,7 +217,6 @@
     background:#fffdf6;
     color:var(--ink);
   }
-  .picker input[type=text]:focus{outline:2px solid var(--rust); outline-offset:1px;}
   .picker-selected{
     margin-top:10px;
     display:flex;
@@ -172,96 +271,61 @@
   .dropdown-empty{padding:10px 12px;font-size:13.5px;color:var(--ink-faint);font-style:italic;}
 
   /* ---------- Relationship result ---------- */
-  #relResult{display:none;}
-  .rel-headline{
-    text-align:center;
-    padding:6px 0 20px;
-  }
-  .rel-headline .rel-of{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    color:var(--ink-soft);
-    letter-spacing:0.03em;
-  }
-  .rel-headline .rel-term{
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:clamp(24px,4.4vw,34px);
-    color:var(--rust-deep);
-    margin-top:2px;
-  }
+  #relResult{display:none; margin-top:22px;}
+  .rel-headline{text-align:center; padding:6px 0 20px;}
+  .rel-headline .rel-of{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.03em;}
+  .rel-headline .rel-term{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(24px,4.4vw,34px); color:var(--rust-deep); margin-top:2px;}
 
-  .chain{
-    display:flex;
-    flex-direction:column;
-    align-items:stretch;
-    gap:0;
-    max-width:520px;
-    margin:0 auto;
-  }
-  .chain-node{
-    display:flex;
-    align-items:center;
-    gap:12px;
-    padding:10px 4px;
-    cursor:pointer;
-  }
+  .chain{display:flex; flex-direction:column; align-items:stretch; gap:0; max-width:520px; margin:0 auto;}
+  .chain-node{display:flex; align-items:center; gap:12px; padding:10px 4px; cursor:pointer; background:none; border:none; width:100%; text-align:left;}
   .chain-node:hover .selected-name{text-decoration:underline;}
   .chain-node .avatar{width:44px;height:44px;font-size:15px;}
   .chain-node.endpoint{background:rgba(168,90,40,0.07); border:1px solid var(--card-edge); padding:12px 14px;}
-  .chain-node.ancestor .avatar{box-shadow:0 0 0 3px var(--paper), 0 0 0 4px var(--brass);}
-  .chain-connector{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding-left:22px;
-    margin-left:22px;
-    border-left:2px dotted var(--line);
-    height:26px;
-  }
-  .chain-connector span{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:0.04em;
-    color:var(--ink-faint);
-    text-transform:uppercase;
-  }
+  .chain-node.ancestor .avatar{box-shadow:0 0 0 3px var(--card), 0 0 0 4px var(--brass);}
+  .chain-connector{display:flex; align-items:center; gap:10px; padding-left:22px; margin-left:22px; border-left:2px dotted var(--line); height:26px;}
+  .chain-connector span{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.04em; color:var(--ink-faint); text-transform:uppercase;}
   .chain-node-info{flex:1;min-width:0;}
   .chain-node-info .selected-name{font-size:16.5px;}
-  .chain-node .role-tag{
+  .chain-node .role-tag{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--brass); letter-spacing:0.04em; text-transform:uppercase; margin-bottom:1px;}
+  .rel-note{max-width:520px; margin:16px auto 0; font-size:13.5px; color:var(--ink-soft); font-style:italic; text-align:center;}
+
+  /* ---------- Detail modal ---------- */
+  #detailOverlay{
+    display:none;
+    position:fixed; inset:0; z-index:500;
+    background:rgba(31,42,52,0.45);
+    align-items:flex-start; justify-content:center;
+    padding:40px 16px;
+    overflow-y:auto;
+  }
+  #detailOverlay.open{display:flex;}
+  #detailPanel{
+    background:var(--card);
+    border:1px solid var(--ink);
+    max-width:600px; width:100%;
+    padding:24px 26px 26px;
+    position:relative;
+    box-shadow:0 20px 50px rgba(31,42,52,0.3);
+  }
+  .detail-close{
+    position:absolute; top:14px; right:14px;
+    background:none; border:none; cursor:pointer;
     font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    color:var(--brass);
-    letter-spacing:0.04em;
-    text-transform:uppercase;
-    margin-bottom:1px;
+    font-size:20px; line-height:1; color:var(--ink-soft);
+    padding:4px 8px;
   }
-
-  .rel-note{
-    max-width:520px;
-    margin:16px auto 0;
-    font-size:13.5px;
-    color:var(--ink-soft);
-    font-style:italic;
-    text-align:center;
-  }
-
-  /* ---------- Detail panel ---------- */
-  #detailPanel{display:none;}
-  .detail-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .detail-close:hover{color:var(--rust-deep);}
+  .detail-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap; padding-right:26px;}
   .detail-head .avatar{width:52px;height:52px;font-size:18px;}
   .detail-name{font-family:'Fraunces',serif;font-weight:600;font-size:24px;}
   .detail-dates{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:3px;}
   .detail-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
   .btn{
     font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.03em;
-    background:var(--ink);
-    color:var(--paper);
+    font-size:11px; letter-spacing:0.03em;
+    background:var(--ink); color:var(--paper);
     border:1px solid var(--ink);
-    padding:8px 12px;
-    cursor:pointer;
+    padding:8px 12px; cursor:pointer;
   }
   .btn:hover{background:var(--rust-deep);border-color:var(--rust-deep);}
   .btn.ghost{background:transparent;color:var(--ink);}
@@ -269,20 +333,8 @@
 
   .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
   @media (max-width:600px){.detail-grid{grid-template-columns:1fr;}}
-  .detail-section h4{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:0.06em;
-    color:var(--brass);
-    margin:0 0 8px;
-    text-transform:uppercase;
-  }
-  .person-chip{
-    display:flex;align-items:center;gap:8px;
-    padding:6px 4px;
-    cursor:pointer;
-    border-bottom:1px solid #ece3c9;
-  }
+  .detail-section h4{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.06em; color:var(--brass); margin:0 0 8px; text-transform:uppercase;}
+  .person-chip{display:flex;align-items:center;gap:8px; padding:6px 4px; cursor:pointer; border-bottom:1px solid #ece3c9; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left;}
   .person-chip:last-child{border-bottom:none;}
   .person-chip:hover{background:var(--paper-deep);}
   .person-chip .avatar{width:28px;height:28px;font-size:11px;}
@@ -295,46 +347,92 @@
 
   /* ---------- Directory ---------- */
   .directory-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
-  .directory-controls input[type=text]{
-    flex:1;min-width:180px;
-    font-family:'Newsreader', serif;
-    font-size:15px;
-    padding:8px 10px;
-    border:1px solid var(--ink);
-    background:#fffdf6;
-  }
+  .directory-controls input[type=text]{flex:1;min-width:180px; font-family:'Newsreader', serif; font-size:15px; padding:8px 10px; border:1px solid var(--ink); background:#fffdf6;}
   .directory-count{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);}
-  .directory-list{max-height:420px;overflow-y:auto;border-top:1px solid var(--card-edge);}
-  .dir-letter{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;color:var(--brass);
-    padding:10px 4px 4px;
-    letter-spacing:0.05em;
-  }
-  .dir-item{
-    display:flex;align-items:center;gap:10px;
-    padding:7px 4px;
-    cursor:pointer;
-    border-bottom:1px solid #ece3c9;
-  }
+  .directory-list{max-height:440px;overflow-y:auto;border-top:1px solid var(--card-edge);}
+  .dir-letter{font-family:'IBM Plex Mono',monospace; font-size:11px;color:var(--brass); padding:10px 4px 4px; letter-spacing:0.05em;}
+  .dir-item{display:flex;align-items:center;gap:10px; padding:7px 4px; cursor:pointer; border-bottom:1px solid #ece3c9; background:none; border-left:none;border-right:none;border-top:none; width:100%; text-align:left;}
   .dir-item:hover{background:var(--paper-deep);}
   .dir-item .avatar{width:26px;height:26px;font-size:10.5px;}
   .dir-item .diname{font-size:14.5px;flex:1;}
   .dir-item .diyears{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
 
-  footer{
+  /* ---------- Tree tab ---------- */
+  .tree-jump{display:flex; gap:10px; align-items:flex-start; margin-bottom:8px; flex-wrap:wrap;}
+  .tree-jump .picker{flex:1; min-width:220px;}
+  .tree-breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:20px;}
+  .tree-breadcrumb b{color:var(--ink);}
+
+  .tree-stage{overflow-x:auto; padding:6px 4px 20px;}
+  .tree-block{margin-bottom:6px;}
+  .tree-block-label{
     text-align:center;
     font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    color:var(--ink-faint);
-    margin-top:34px;
+    font-size:10.5px; letter-spacing:0.08em;
+    color:var(--brass);
+    margin-bottom:2px;
   }
 
-  .hint{font-size:14px;color:var(--ink-soft);}
+  .tree-card{
+    display:flex; align-items:center; gap:8px;
+    background:#fffdf6;
+    border:1px solid var(--card-edge);
+    padding:8px 12px 8px 8px;
+    cursor:pointer;
+    min-width:150px;
+    white-space:nowrap;
+    text-align:left;
+  }
+  .tree-card:hover{border-color:var(--rust); background:var(--card);}
+  .tree-card .avatar{width:32px;height:32px;font-size:12px;flex:none;}
+  .tree-card .tc-name{font-size:14px; font-weight:500; white-space:normal; line-height:1.2;}
+  .tree-card .tc-years{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint);}
+  .tree-card.is-focus{
+    border:2px solid var(--rust-deep);
+    background:var(--card);
+    box-shadow:0 2px 6px rgba(168,90,40,0.15);
+  }
+  .tree-card.placeholder{opacity:0.55; cursor:default; font-style:italic;}
+  .tree-card.placeholder:hover{border-color:var(--card-edge); background:#fffdf6;}
+
+  .couple-row{display:flex; align-items:center; justify-content:center; gap:0;}
+  .couple-join{
+    width:20px; height:2px; background:var(--line); flex:none;
+    position:relative;
+  }
+
+  .ctree-root-stem{width:2px; height:20px; background:var(--line); margin:0 auto;}
+
+  .tree-empty-note{
+    text-align:center; color:var(--ink-faint); font-style:italic; font-size:13.5px;
+    padding:14px 0;
+  }
+  .tree-union-caption{
+    text-align:center; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint);
+    margin:14px 0 -8px;
+  }
+  .tree-divider{border:none; border-top:1px dashed var(--card-edge); margin:26px 0 4px;}
+
+  footer{text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); margin-top:34px;}
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
 </style>
 </head>
 <body>
+
+<div id="gate">
+  <div class="gate-card" id="gateCard">
+    <div class="gate-seal">LG</div>
+    <div class="gate-title">The Gropper Register</div>
+    <div class="gate-sub">PRIVATE FAMILY ARCHIVE</div>
+    <div class="gate-question">What was Lony's company?</div>
+    <input type="text" id="gateInput" autocomplete="off" spellcheck="false" aria-label="Answer">
+    <div class="gate-error" id="gateError"></div>
+    <button class="btn" id="gateSubmit" style="width:100%;">Enter</button>
+    <div class="gate-note">Ask a relative if you don't know the answer.<br>This is a family courtesy lock, not real security.</div>
+  </div>
+</div>
+
+<div id="appRoot">
 <div class="wrap">
 
   <header class="masthead">
@@ -345,37 +443,75 @@
     <div class="masthead-count"><b id="peopleCount">—</b> people on record</div>
   </header>
 
-  <section class="panel">
-    <div class="panel-label">FIND A RELATION</div>
-    <div class="picker-row">
-      <div class="picker" id="youPicker">
-        <div class="picker-title">YOU ARE</div>
-        <input type="text" id="youInput" placeholder="Search a name…" autocomplete="off">
-        <div class="dropdown" id="youDropdown"></div>
-        <div class="picker-selected" id="youSelected"></div>
+  <div class="tabbar" role="tablist" aria-label="Views">
+    <button class="tab-btn active" id="tabBtnExplore" role="tab" aria-selected="true" aria-controls="tabExplore">Relationship Finder</button>
+    <button class="tab-btn" id="tabBtnTree" role="tab" aria-selected="false" aria-controls="tabTree">Family Tree</button>
+    <button class="tab-btn" id="tabBtnRegister" role="tab" aria-selected="false" aria-controls="tabRegister">Full Register</button>
+  </div>
+
+  <div class="tab-panels-frame">
+
+    <div class="tab-panel active" id="tabExplore" role="tabpanel" aria-labelledby="tabBtnExplore">
+      <div class="panel-label">FIND A RELATION</div>
+      <div class="picker-row">
+        <div class="picker" id="youPicker">
+          <div class="picker-title">YOU ARE</div>
+          <input type="text" id="youInput" placeholder="Search a name…" autocomplete="off">
+          <div class="dropdown" id="youDropdown"></div>
+          <div class="picker-selected" id="youSelected"></div>
+        </div>
+        <div class="picker-mid">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+        </div>
+        <div class="picker" id="targetPicker">
+          <div class="picker-title">RELATED TO</div>
+          <input type="text" id="targetInput" placeholder="Search a name…" autocomplete="off">
+          <div class="dropdown" id="targetDropdown"></div>
+          <div class="picker-selected" id="targetSelected"></div>
+        </div>
       </div>
-      <div class="picker-mid">
-        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
-      </div>
-      <div class="picker" id="targetPicker">
-        <div class="picker-title">RELATED TO</div>
-        <input type="text" id="targetInput" placeholder="Search a name…" autocomplete="off">
-        <div class="dropdown" id="targetDropdown"></div>
-        <div class="picker-selected" id="targetSelected"></div>
+
+      <div id="relResult">
+        <div class="rel-headline">
+          <div class="rel-of" id="relOf"></div>
+          <div class="rel-term" id="relTerm"></div>
+        </div>
+        <div class="chain" id="relChain"></div>
+        <div class="rel-note" id="relNote"></div>
       </div>
     </div>
-  </section>
 
-  <section class="panel" id="relResult">
-    <div class="rel-headline">
-      <div class="rel-of" id="relOf"></div>
-      <div class="rel-term" id="relTerm"></div>
+    <div class="tab-panel" id="tabTree" role="tabpanel" aria-labelledby="tabBtnTree">
+      <div class="panel-label">FAMILY TREE</div>
+      <div class="tree-jump">
+        <div class="picker" id="treePicker">
+          <div class="picker-title">CENTER TREE ON</div>
+          <input type="text" id="treeInput" placeholder="Search a name…" autocomplete="off">
+          <div class="dropdown" id="treeDropdown"></div>
+        </div>
+      </div>
+      <div class="tree-breadcrumb">Currently viewing <b id="treeFocusName">—</b></div>
+      <div class="tree-stage" id="treeStage"></div>
     </div>
-    <div class="chain" id="relChain"></div>
-    <div class="rel-note" id="relNote"></div>
-  </section>
 
-  <section class="panel" id="detailPanel">
+    <div class="tab-panel" id="tabRegister" role="tabpanel" aria-labelledby="tabBtnRegister">
+      <div class="panel-label">FULL REGISTER</div>
+      <div class="directory-controls">
+        <input type="text" id="dirSearch" placeholder="Filter the register…">
+        <div class="directory-count"><span id="dirCount">0</span> shown</div>
+      </div>
+      <div class="directory-list" id="directoryList"></div>
+    </div>
+
+  </div>
+
+  <footer>Compiled from a GEDCOM family archive &middot; browse, don't just look</footer>
+</div>
+</div>
+
+<div id="detailOverlay" role="presentation">
+  <div id="detailPanel" role="dialog" aria-modal="true" aria-labelledby="detailName">
+    <button class="detail-close" id="detailClose" aria-label="Close">&times;</button>
     <div class="detail-head">
       <div class="avatar" id="detailAvatar"></div>
       <div>
@@ -385,6 +521,7 @@
       <div class="detail-actions">
         <button class="btn" id="detailMakeYou">Make this "You"</button>
         <button class="btn ghost" id="detailRelate">Relation to you</button>
+        <button class="btn ghost" id="detailCenter">Center tree here</button>
       </div>
     </div>
     <ul class="facts-list" id="detailFacts"></ul>
@@ -406,18 +543,7 @@
         <div id="detailSiblings"></div>
       </div>
     </div>
-  </section>
-
-  <section class="panel">
-    <div class="panel-label">FULL REGISTER</div>
-    <div class="directory-controls">
-      <input type="text" id="dirSearch" placeholder="Filter the register…">
-      <div class="directory-count"><span id="dirCount">0</span> shown</div>
-    </div>
-    <div class="directory-list" id="directoryList"></div>
-  </section>
-
-  <footer>Compiled from a GEDCOM family archive &middot; browse, don't just look</footer>
+  </div>
 </div>
 
 <script>
@@ -454,7 +580,6 @@ function lifespan(id){
   return '';
 }
 function initials(id){
-  const p = INDI[id];
   const n = displayName(id);
   if(n === 'Unnamed' || n === 'Unknown') return '?';
   const parts = n.split(/\s+/).filter(Boolean);
@@ -468,9 +593,7 @@ function sexClass(id){
   if(p.sex==='F') return 'f';
   return 'u';
 }
-
 function familyOf(famId){ return FAM[famId]; }
-
 function getParentFamily(id){
   const p = INDI[id];
   if(!p || !p.famc || !p.famc.length) return null;
@@ -509,21 +632,27 @@ function getSiblings(id){
   if(!f) return [];
   return (f.chil||[]).filter(c => c!==id && INDI[c]);
 }
-function areSpouses(a,b){
-  return getSpouses(a).includes(b);
+function areSpouses(a,b){ return getSpouses(a).includes(b); }
+function sortByBirth(ids){
+  return ids.slice().sort((a,b)=>{
+    const ay = birthYear(a), by = birthYear(b);
+    if(ay && by) return parseInt(ay)-parseInt(by);
+    if(ay) return -1;
+    if(by) return 1;
+    return 0;
+  });
 }
 
 /* ---------------- Ancestor BFS ---------------- */
 function getAncestors(id){
   const dist = new Map();
-  const parentOf = new Map(); // ancestorId -> childId step toward id
+  const parentOf = new Map();
   dist.set(id,0);
   const queue = [id];
   while(queue.length){
     const cur = queue.shift();
     const d = dist.get(cur);
-    const parents = getParents(cur);
-    parents.forEach(p=>{
+    getParents(cur).forEach(p=>{
       if(!dist.has(p)){
         dist.set(p, d+1);
         parentOf.set(p, cur);
@@ -533,10 +662,7 @@ function getAncestors(id){
   }
   return {dist, parentOf};
 }
-
 function reconstructPath(parentOf, startId, ancestorId){
-  // walk from ancestorId down to startId using parentOf (ancestor->child step)
-  // returns array [startId, ..., ancestorId]
   const path = [ancestorId];
   let cur = ancestorId;
   while(cur !== startId){
@@ -545,7 +671,7 @@ function reconstructPath(parentOf, startId, ancestorId){
     path.push(next);
     cur = next;
   }
-  return path.reverse(); // startId ... ancestorId
+  return path.reverse();
 }
 
 /* ---------------- Label building ---------------- */
@@ -560,10 +686,7 @@ function removedTerm(n){
   if(n < words.length) return words[n];
   return n + ' Times';
 }
-function greatPrefix(n){
-  if(n<=0) return '';
-  return 'Great-'.repeat(n);
-}
+function greatPrefix(n){ if(n<=0) return ''; return 'Great-'.repeat(n); }
 function sexTerm(sex, mWord, fWord, uWord){
   if(sex==='M') return mWord;
   if(sex==='F') return fWord;
@@ -572,82 +695,52 @@ function sexTerm(sex, mWord, fWord, uWord){
 function ancestorTerm(depth, targetSex){
   if(depth===1) return sexTerm(targetSex,'Father','Mother','Parent');
   if(depth===2) return sexTerm(targetSex,'Grandfather','Grandmother','Grandparent');
-  const greats = depth-2;
-  return greatPrefix(greats) + sexTerm(targetSex,'Grandfather','Grandmother','Grandparent');
+  return greatPrefix(depth-2) + sexTerm(targetSex,'Grandfather','Grandmother','Grandparent');
 }
 function descendantTerm(depth, targetSex){
   if(depth===1) return sexTerm(targetSex,'Son','Daughter','Child');
   if(depth===2) return sexTerm(targetSex,'Grandson','Granddaughter','Grandchild');
-  const greats = depth-2;
-  return greatPrefix(greats) + sexTerm(targetSex,'Grandson','Granddaughter','Grandchild');
+  return greatPrefix(depth-2) + sexTerm(targetSex,'Grandson','Granddaughter','Grandchild');
 }
-function siblingTerm(targetSex, half){
-  return (half?'Half-':'') + sexTerm(targetSex,'Brother','Sister','Sibling');
-}
-function auncleTerm(greats, targetSex, half){
-  const base = sexTerm(targetSex,'Uncle','Aunt','Aunt/Uncle');
-  return (half?'Half-':'') + greatPrefix(greats) + base;
-}
-function niblingTerm(greats, targetSex, half){
-  const base = sexTerm(targetSex,'Nephew','Niece','Niece/Nephew');
-  return (half?'Half-':'') + greatPrefix(greats) + base;
-}
+function siblingTerm(targetSex, half){ return (half?'Half-':'') + sexTerm(targetSex,'Brother','Sister','Sibling'); }
+function auncleTerm(greats, targetSex, half){ return (half?'Half-':'') + greatPrefix(greats) + sexTerm(targetSex,'Uncle','Aunt','Aunt/Uncle'); }
+function niblingTerm(greats, targetSex, half){ return (half?'Half-':'') + greatPrefix(greats) + sexTerm(targetSex,'Nephew','Niece','Niece/Nephew'); }
 function cousinTerm(degree, removed, half){
   let s = (half?'Half-':'') + ordinal(degree) + ' Cousin';
   if(removed>0) s += ', ' + removedTerm(removed) + ' Removed';
   return s;
 }
-
 function buildBloodLabel(gYou, gTarget, isFull, targetSex){
   if(gYou===0 && gTarget===0) return 'This is you';
-  if(gTarget===0){
-    // target IS the common ancestor => target is an ancestor of "you"
-    return ancestorTerm(gYou, targetSex);
-  }
-  if(gYou===0){
-    // you are the common ancestor => target descends from you
-    return descendantTerm(gTarget, targetSex);
-  }
-  if(gYou===1 && gTarget===1){
-    return siblingTerm(targetSex, !isFull);
-  }
+  if(gTarget===0) return ancestorTerm(gYou, targetSex);
+  if(gYou===0) return descendantTerm(gTarget, targetSex);
+  if(gYou===1 && gTarget===1) return siblingTerm(targetSex, !isFull);
   if(Math.min(gYou,gTarget)===1){
     const greats = Math.max(gYou,gTarget)-2;
-    if(gTarget > gYou){
-      return niblingTerm(greats, targetSex, !isFull);
-    } else {
-      return auncleTerm(greats, targetSex, !isFull);
-    }
+    if(gTarget > gYou) return niblingTerm(greats, targetSex, !isFull);
+    return auncleTerm(greats, targetSex, !isFull);
   }
   const degree = Math.min(gYou,gTarget)-1;
   const removed = Math.abs(gYou-gTarget);
   return cousinTerm(degree, removed, !isFull);
 }
-
-/* Core: find nearest common ancestor(s) between two people */
 function bloodPath(youId, targetId){
   const A = getAncestors(youId);
   const B = getAncestors(targetId);
   let common = [];
-  A.dist.forEach((d,id)=>{
-    if(B.dist.has(id)) common.push({id, gYou:d, gTarget:B.dist.get(id)});
-  });
+  A.dist.forEach((d,id)=>{ if(B.dist.has(id)) common.push({id, gYou:d, gTarget:B.dist.get(id)}); });
   if(!common.length) return null;
   common.sort((a,b)=>(a.gYou+a.gTarget)-(b.gYou+b.gTarget));
   const minTotal = common[0].gYou + common[0].gTarget;
   const best = common.filter(c=>c.gYou+c.gTarget===minTotal);
   const isFull = best.length>=2;
   const {gYou,gTarget,id:ancestorId} = best[0];
-  const pathYouUp = reconstructPath(A.parentOf, youId, ancestorId);       // you...ancestor
-  const pathTargetUp = reconstructPath(B.parentOf, targetId, ancestorId); // target...ancestor
+  const pathYouUp = reconstructPath(A.parentOf, youId, ancestorId);
+  const pathTargetUp = reconstructPath(B.parentOf, targetId, ancestorId);
   return {gYou,gTarget,ancestorId,isFull,pathYouUp,pathTargetUp};
 }
-
-/* Full relationship resolver, with in-law fallback */
 function resolveRelationship(youId, targetId){
-  if(youId===targetId){
-    return {kind:'self'};
-  }
+  if(youId===targetId) return {kind:'self'};
   if(areSpouses(youId,targetId)){
     return {kind:'spouse', label: sexTerm(person(targetId).sex,'Husband','Wife','Spouse'),
             chain:[{id:youId,role:'You'},{id:targetId,role:'Spouse',connector:'married to'}]};
@@ -658,7 +751,6 @@ function resolveRelationship(youId, targetId){
     const chain = buildBloodChain(bp, youId, targetId);
     return {kind:'blood', label, chain, half: !bp.isFull && (bp.gYou>0 && bp.gTarget>0)};
   }
-  // in-law fallback: your spouse is blood-related to target
   for(const sp of getSpouses(youId)){
     const bp2 = bloodPath(sp, targetId);
     if(bp2){
@@ -669,7 +761,6 @@ function resolveRelationship(youId, targetId){
       return {kind:'inlaw', label: inlaw, chain};
     }
   }
-  // in-law fallback: target's spouse is blood-related to you
   for(const sp of getSpouses(targetId)){
     const bp3 = bloodPath(youId, sp);
     if(bp3){
@@ -682,65 +773,40 @@ function resolveRelationship(youId, targetId){
   }
   return {kind:'none'};
 }
-
 function toInLaw(rawLabel, refPersonId, side, targetSexOverride){
   const lower = rawLabel.toLowerCase();
   const targetSex = targetSexOverride || person(refPersonId).sex;
-  if(/brother|sister|sibling/.test(lower)){
-    return sexTerm(targetSex,'Brother-in-law','Sister-in-law','Sibling-in-law');
-  }
-  if(/^father$|^mother$|^parent$/.test(lower)){
-    return sexTerm(targetSex,'Father-in-law','Mother-in-law','Parent-in-law');
-  }
-  if(/^son$|^daughter$|^child$/.test(lower)){
-    return sexTerm(targetSex,'Son-in-law','Daughter-in-law','Child-in-law');
-  }
+  if(/brother|sister|sibling/.test(lower)) return sexTerm(targetSex,'Brother-in-law','Sister-in-law','Sibling-in-law');
+  if(/^father$|^mother$|^parent$/.test(lower)) return sexTerm(targetSex,'Father-in-law','Mother-in-law','Parent-in-law');
+  if(/^son$|^daughter$|^child$/.test(lower)) return sexTerm(targetSex,'Son-in-law','Daughter-in-law','Child-in-law');
   if(side==='spouseSide') return "Your spouse's " + rawLabel;
   return "Married to your " + rawLabel;
 }
-
 function buildBloodChain(bp, youId, targetId){
-  const up = bp.pathYouUp; // youId ... ancestor
-  const down = bp.pathTargetUp.slice(0,-1).reverse(); // ancestor-1 ... targetId (exclude ancestor, reversed to go downward)
-  const ids = up.concat(down); // youId ... ancestor ... targetId
+  const up = bp.pathYouUp;
+  const down = bp.pathTargetUp.slice(0,-1).reverse();
+  const ids = up.concat(down);
   const chain = [];
   for(let i=0;i<ids.length;i++){
     const id = ids[i];
     const node = {id};
-    if(i===0){ node.role='You'; }
-    else if(i===up.length-1 && up.length>1){ node.role='Common ancestor'; }
-    else if(id===targetId){ node.role='Related person'; }
-    else { node.role=''; }
-    if(i>0){
-      // determine connector direction
-      if(i < up.length){
-        node.connector = 'child of';
-      } else {
-        node.connector = 'parent of';
-      }
-    }
-    if(up.length===1 && i===0){ /* you are the ancestor */ }
+    if(i===0) node.role='You';
+    else if(i===up.length-1 && up.length>1) node.role='Common ancestor';
+    else if(id===targetId) node.role='Related person';
+    else node.role='';
+    if(i>0) node.connector = (i < up.length) ? 'child of' : 'parent of';
     chain.push(node);
   }
   return chain;
 }
 
-/* ---------------- UI state ---------------- */
-let youId = null;
-let targetId = null;
-let detailId = null;
-
-const defaultYou = ALL_IDS.find(id => (INDI[id].name||'').includes('Lony') && (INDI[id].name||'').includes('Gropper')) || ALL_IDS[0];
-
+/* ---------------- Shared UI bits ---------------- */
 function avatarHTML(id, extraClass){
   return `<div class="avatar ${sexClass(id)} ${extraClass||''}">${initials(id)}</div>`;
 }
-
-/* ---------------- Search dropdown ---------------- */
 function setupPicker(inputEl, dropdownEl, onSelect){
   let matches = [];
   let activeIdx = -1;
-
   function render(query){
     const q = query.trim().toLowerCase();
     if(!q){ dropdownEl.style.display='none'; dropdownEl.innerHTML=''; return; }
@@ -767,7 +833,6 @@ function setupPicker(inputEl, dropdownEl, onSelect){
       });
     });
   }
-
   inputEl.addEventListener('input', ()=>render(inputEl.value));
   inputEl.addEventListener('focus', ()=>{ if(inputEl.value.trim()) render(inputEl.value); });
   inputEl.addEventListener('keydown', (e)=>{
@@ -787,7 +852,6 @@ function setupPicker(inputEl, dropdownEl, onSelect){
     if(!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) dropdownEl.style.display='none';
   });
 }
-
 function renderSelected(container, id){
   if(!id){ container.innerHTML=''; return; }
   container.innerHTML = `${avatarHTML(id)}
@@ -796,6 +860,32 @@ function renderSelected(container, id){
       <div class="selected-meta">${lifespan(id)}${person(id).birthPlace ? ' &middot; '+person(id).birthPlace : ''}</div>
     </div>`;
 }
+
+/* ---------------- Tab state ---------------- */
+let youId = null;
+let targetId = null;
+let detailId = null;
+let treeFocusId = null;
+
+const defaultYou = ALL_IDS.find(id => (INDI[id].name||'').includes('Lony') && (INDI[id].name||'').includes('Gropper')) || ALL_IDS[0];
+
+function activateTab(name){
+  const tabs = {explore:'tabExplore', tree:'tabTree', register:'tabRegister'};
+  const btns = {explore:'tabBtnExplore', tree:'tabBtnTree', register:'tabBtnRegister'};
+  Object.keys(tabs).forEach(k=>{
+    document.getElementById(tabs[k]).classList.toggle('active', k===name);
+    const btn = document.getElementById(btns[k]);
+    btn.classList.toggle('active', k===name);
+    btn.setAttribute('aria-selected', k===name ? 'true':'false');
+  });
+  if(name==='tree'){
+    if(!treeFocusId) treeFocusId = youId || defaultYou;
+    renderTree(treeFocusId);
+  }
+}
+document.getElementById('tabBtnExplore').addEventListener('click', ()=>activateTab('explore'));
+document.getElementById('tabBtnTree').addEventListener('click', ()=>activateTab('tree'));
+document.getElementById('tabBtnRegister').addEventListener('click', ()=>activateTab('register'));
 
 /* ---------------- Relationship rendering ---------------- */
 function renderRelationship(){
@@ -810,7 +900,6 @@ function renderRelationship(){
     document.getElementById('relNote').textContent='';
     return;
   }
-
   const rel = resolveRelationship(youId, targetId);
   document.getElementById('relOf').textContent = displayName(targetId) + ' is related to ' + displayName(youId) + ' as:';
 
@@ -820,9 +909,7 @@ function renderRelationship(){
     document.getElementById('relNote').textContent = 'No blood or marriage link between these two people could be traced in the uploaded records.';
     return;
   }
-
   document.getElementById('relTerm').textContent = rel.label;
-
   const chainEl = document.getElementById('relChain');
   chainEl.innerHTML = '';
   rel.chain.forEach((node, i)=>{
@@ -832,9 +919,8 @@ function renderRelationship(){
       conn.innerHTML = `<span>${node.connector}</span>`;
       chainEl.appendChild(conn);
     }
-    const el = document.createElement('div');
+    const el = document.createElement('button');
     el.className = 'chain-node' + (i===0||i===rel.chain.length-1 ? ' endpoint':'') + (node.role==='Common ancestor' ? ' ancestor':'');
-    el.dataset.id = node.id;
     el.innerHTML = `${avatarHTML(node.id)}
       <div class="chain-node-info">
         ${node.role ? `<div class="role-tag">${node.role}</div>`:''}
@@ -844,32 +930,29 @@ function renderRelationship(){
     el.addEventListener('click', ()=>showDetail(node.id));
     chainEl.appendChild(el);
   });
-
   let note = '';
   if(rel.kind==='inlaw') note = 'Connected by marriage, not by blood.';
   else if(rel.half) note = 'This connection runs through only one shared parent (a half relation).';
   document.getElementById('relNote').textContent = note;
 }
 
-/* ---------------- Detail panel ---------------- */
+/* ---------------- Detail modal ---------------- */
 function personChip(id){
-  return `<div class="person-chip" data-id="${id}">
+  return `<button class="person-chip" data-id="${id}">
     ${avatarHTML(id)}
     <span class="cname">${displayName(id)}</span>
     <span class="cyears">${lifespan(id)}</span>
-  </div>`;
+  </button>`;
 }
 function wireChips(container){
   container.querySelectorAll('.person-chip').forEach(el=>{
     el.addEventListener('click', ()=> showDetail(el.dataset.id));
   });
 }
-
 function showDetail(id){
   detailId = id;
   const p = person(id);
-  document.getElementById('detailPanel').style.display='block';
-  document.getElementById('detailAvatar').outerHTML = avatarHTML(id).replace('avatar','avatar').replace('<div','<div id="detailAvatar"');
+  document.getElementById('detailAvatar').outerHTML = avatarHTML(id).replace('<div','<div id="detailAvatar"');
   document.getElementById('detailName').textContent = displayName(id);
   let dates = lifespan(id);
   if(p.birthPlace) dates += (dates?' &middot; born ':'Born ') + p.birthPlace;
@@ -882,33 +965,49 @@ function showDetail(id){
   document.getElementById('detailFacts').innerHTML = facts;
 
   const parents = getParents(id);
-  document.getElementById('detailParents').innerHTML = parents.length
-    ? parents.map(personChip).join('') : '<div class="empty-note">None on record</div>';
-
+  document.getElementById('detailParents').innerHTML = parents.length ? parents.map(personChip).join('') : '<div class="empty-note">None on record</div>';
   const spouses = getSpouses(id);
-  document.getElementById('detailSpouses').innerHTML = spouses.length
-    ? spouses.map(personChip).join('') : '<div class="empty-note">None on record</div>';
-
+  document.getElementById('detailSpouses').innerHTML = spouses.length ? spouses.map(personChip).join('') : '<div class="empty-note">None on record</div>';
   const children = getChildren(id);
-  document.getElementById('detailChildren').innerHTML = children.length
-    ? children.map(personChip).join('') : '<div class="empty-note">None on record</div>';
-
+  document.getElementById('detailChildren').innerHTML = children.length ? children.map(personChip).join('') : '<div class="empty-note">None on record</div>';
   const siblings = getSiblings(id);
-  document.getElementById('detailSiblings').innerHTML = siblings.length
-    ? siblings.map(personChip).join('') : '<div class="empty-note">None on record</div>';
+  document.getElementById('detailSiblings').innerHTML = siblings.length ? siblings.map(personChip).join('') : '<div class="empty-note">None on record</div>';
 
   wireChips(document.getElementById('detailPanel'));
-  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+  openDetailModal();
 }
-
+function openDetailModal(){
+  const overlay = document.getElementById('detailOverlay');
+  overlay.classList.add('open');
+  document.getElementById('detailClose').focus();
+}
+function closeDetailModal(){
+  document.getElementById('detailOverlay').classList.remove('open');
+}
+document.getElementById('detailClose').addEventListener('click', closeDetailModal);
+document.getElementById('detailOverlay').addEventListener('click', (e)=>{
+  if(e.target.id==='detailOverlay') closeDetailModal();
+});
+document.addEventListener('keydown', (e)=>{
+  if(e.key==='Escape') closeDetailModal();
+});
 document.getElementById('detailMakeYou').addEventListener('click', ()=>{
   if(!detailId) return;
   setYou(detailId);
-  window.scrollTo({top:0, behavior:'smooth'});
+  closeDetailModal();
+  activateTab('explore');
 });
 document.getElementById('detailRelate').addEventListener('click', ()=>{
   if(!detailId) return;
   setTarget(detailId);
+  closeDetailModal();
+  activateTab('explore');
+});
+document.getElementById('detailCenter').addEventListener('click', ()=>{
+  if(!detailId) return;
+  treeFocusId = detailId;
+  closeDetailModal();
+  activateTab('tree');
 });
 
 /* ---------------- Set you / target ---------------- */
@@ -924,9 +1023,13 @@ function setTarget(id){
   renderSelected(document.getElementById('targetSelected'), id);
   renderRelationship();
 }
-
 setupPicker(document.getElementById('youInput'), document.getElementById('youDropdown'), setYou);
 setupPicker(document.getElementById('targetInput'), document.getElementById('targetDropdown'), setTarget);
+setupPicker(document.getElementById('treeInput'), document.getElementById('treeDropdown'), (id)=>{
+  document.getElementById('treeInput').value = '';
+  treeFocusId = id;
+  renderTree(id);
+});
 
 /* ---------------- Directory ---------------- */
 function renderDirectory(filter){
@@ -942,7 +1045,6 @@ function renderDirectory(filter){
   });
   const filtered = q ? sorted.filter(id=>displayName(id).toLowerCase().includes(q)) : sorted;
   document.getElementById('dirCount').textContent = filtered.length;
-
   let html = '';
   let lastLetter = '';
   filtered.forEach(id=>{
@@ -952,11 +1054,11 @@ function renderDirectory(filter){
       html += `<div class="dir-letter">${letter}</div>`;
       lastLetter = letter;
     }
-    html += `<div class="dir-item" data-id="${id}">
+    html += `<button class="dir-item" data-id="${id}">
       ${avatarHTML(id)}
       <span class="diname">${displayName(id)}</span>
       <span class="diyears">${lifespan(id)}</span>
-    </div>`;
+    </button>`;
   });
   listEl.innerHTML = html || '<div class="dropdown-empty">No one matches that filter</div>';
   listEl.querySelectorAll('.dir-item').forEach(el=>{
@@ -965,10 +1067,121 @@ function renderDirectory(filter){
 }
 document.getElementById('dirSearch').addEventListener('input', (e)=>renderDirectory(e.target.value));
 
+/* ---------------- Family tree (pure-CSS connector chart) ---------------- */
+function treeCardHTML(id, opts){
+  opts = opts || {};
+  const cls = ['tree-card'];
+  if(opts.focus) cls.push('is-focus');
+  return `<button class="${cls.join(' ')}" data-id="${id}">
+    ${avatarHTML(id)}
+    <span>
+      <span class="tc-name">${displayName(id)}</span><br>
+      <span class="tc-years">${lifespan(id)}</span>
+    </span>
+  </button>`;
+}
+function wireTreeCards(container){
+  container.querySelectorAll('.tree-card[data-id]').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      treeFocusId = el.dataset.id;
+      renderTree(treeFocusId);
+    });
+  });
+}
+
+function renderTree(focusId){
+  treeFocusId = focusId;
+  document.getElementById('treeFocusName').textContent = displayName(focusId);
+  const stage = document.getElementById('treeStage');
+  const parts = [];
+
+  /* --- Parents & siblings block --- */
+  const parents = getParents(focusId);
+  const parentFamily = getParentFamily(focusId);
+  const siblings = parentFamily ? sortByBirth(parentFamily.chil.filter(id=>INDI[id])) : [focusId];
+
+  parts.push('<div class="tree-block">');
+  if(parents.length){
+    parts.push('<div class="tree-block-label">Parents</div>');
+    parts.push('<div class="couple-row">');
+    parents.forEach((pid,i)=>{
+      if(i>0) parts.push('<div class="couple-join"></div>');
+      parts.push(treeCardHTML(pid));
+    });
+    parts.push('</div>');
+    parts.push('<div class="ctree-root-stem"></div>');
+  }
+  if(siblings.length>1){
+    parts.push('<div class="tree-block-label">Siblings</div>');
+  }
+  parts.push('<div style="display:flex; justify-content:center; flex-wrap:wrap; gap:14px 10px;">');
+  siblings.forEach(sid=>{
+    parts.push(treeCardHTML(sid, {focus: sid===focusId}));
+  });
+  parts.push('</div>');
+  parts.push('</div>'); // .tree-block
+
+  /* --- Spouse & children block(s) --- */
+  const spouseFamilies = getSpouseFamilies(focusId);
+  parts.push('<hr class="tree-divider">');
+
+  if(!spouseFamilies.length){
+    parts.push('<div class="tree-empty-note">No spouse or children on record</div>');
+  } else {
+    spouseFamilies.forEach((f, idx)=>{
+      const spouseId = [f.husb,f.wife].find(x=>x && x!==focusId);
+      const children = sortByBirth((f.chil||[]).filter(id=>INDI[id]));
+      if(idx>0) parts.push('<div class="tree-union-caption">also with ' + (spouseId?displayName(spouseId):'unknown partner') + '</div>');
+      parts.push('<div class="tree-block">');
+      parts.push('<div class="couple-row">');
+      parts.push(treeCardHTML(focusId, {focus:true}));
+      if(spouseId){
+        parts.push('<div class="couple-join"></div>');
+        parts.push(treeCardHTML(spouseId));
+      }
+      parts.push('</div>');
+      if(children.length){
+        parts.push('<div class="ctree-root-stem"></div>');
+        parts.push('<div class="tree-block-label">Children</div>');
+        parts.push('<div style="display:flex; justify-content:center; flex-wrap:wrap; gap:14px 10px;">');
+        children.forEach(cid=> parts.push(treeCardHTML(cid)));
+        parts.push('</div>');
+      } else {
+        parts.push('<div class="tree-empty-note">No children on record</div>');
+      }
+      parts.push('</div>');
+    });
+  }
+
+  stage.innerHTML = parts.join('');
+  wireTreeCards(stage);
+}
+
+/* ---------------- Gate ---------------- */
+const GATE_ANSWER = 'lony g';
+function tryUnlock(){
+  const val = document.getElementById('gateInput').value.trim().toLowerCase();
+  if(val === GATE_ANSWER){
+    document.getElementById('gate').classList.add('hidden');
+    document.getElementById('appRoot').classList.add('unlocked');
+  } else {
+    const card = document.getElementById('gateCard');
+    document.getElementById('gateError').textContent = "That's not quite right — try again.";
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+  }
+}
+document.getElementById('gateSubmit').addEventListener('click', tryUnlock);
+document.getElementById('gateInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') tryUnlock();
+});
+
 /* ---------------- Init ---------------- */
 document.getElementById('peopleCount').textContent = ALL_IDS.length;
 renderDirectory('');
 setYou(defaultYou);
+document.getElementById('gateInput').focus();
 </script>
 </body>
 </html>
