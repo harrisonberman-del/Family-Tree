@@ -358,60 +358,74 @@
   .dir-item .diyears{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
 
   /* ---------- Tree tab ---------- */
-  .tree-jump{display:flex; gap:10px; align-items:flex-start; margin-bottom:8px; flex-wrap:wrap;}
-  .tree-jump .picker{flex:1; min-width:220px;}
-  .tree-breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:20px;}
-  .tree-breadcrumb b{color:var(--ink);}
-
-  .tree-stage{overflow-x:auto; padding:6px 4px 20px;}
-  .tree-block{margin-bottom:6px;}
-  .tree-block-label{
-    text-align:center;
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px; letter-spacing:0.08em;
-    color:var(--brass);
-    margin-bottom:2px;
+  .tree-toolbar{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;}
+  .tree-toolbar .picker{flex:1; min-width:220px;}
+  .tree-controls{display:flex; gap:6px; align-items:center; flex-wrap:wrap;}
+  .tz-btn{
+    font-family:'IBM Plex Mono',monospace; font-size:13px;
+    height:38px; min-width:38px; padding:0 10px;
+    border:1px solid var(--ink); background:#fffdf6; color:var(--ink);
+    cursor:pointer; display:flex; align-items:center; justify-content:center;
   }
+  .tz-btn:hover{background:var(--paper-deep);}
+  .tz-btn.solid{background:var(--ink); color:var(--paper);}
+  .tz-btn.solid:hover{background:var(--rust-deep); border-color:var(--rust-deep);}
+  .tree-breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:8px;}
+  .tree-breadcrumb b{color:var(--ink);}
+  .tree-hint{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint); margin-bottom:10px;}
 
-  .tree-card{
-    display:flex; align-items:center; gap:8px;
+  .tree-stage{
+    position:relative;
+    height:min(72vh, 640px);
+    border:1px solid var(--ink);
+    background:
+      linear-gradient(rgba(195,180,138,0.16) 1px, transparent 1px) 0 0 / 22px 22px,
+      linear-gradient(90deg, rgba(195,180,138,0.16) 1px, transparent 1px) 0 0 / 22px 22px,
+      #efe8d2;
+    overflow:hidden;
+    cursor:grab;
+    touch-action:none;
+    user-select:none;
+  }
+  .tree-stage.grabbing{cursor:grabbing;}
+  .tree-world{position:absolute; top:0; left:0; transform-origin:0 0;}
+  .tree-world svg{position:absolute; top:0; left:0; overflow:visible; pointer-events:none;}
+  .tree-world svg line{stroke:#b0a074; stroke-width:2; stroke-linecap:round;}
+
+  .tnode{
+    position:absolute;
+    display:flex; align-items:center; gap:9px;
     background:#fffdf6;
     border:1px solid var(--card-edge);
-    padding:8px 12px 8px 8px;
-    cursor:pointer;
-    min-width:150px;
-    white-space:nowrap;
+    padding:0 12px 0 8px;
     text-align:left;
+    cursor:pointer;
+    box-shadow:0 1px 2px rgba(31,42,52,0.08);
+    overflow:hidden;
   }
-  .tree-card:hover{border-color:var(--rust); background:var(--card);}
-  .tree-card .avatar{width:32px;height:32px;font-size:12px;flex:none;}
-  .tree-card .tc-name{font-size:14px; font-weight:500; white-space:normal; line-height:1.2;}
-  .tree-card .tc-years{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint);}
-  .tree-card.is-focus{
-    border:2px solid var(--rust-deep);
-    background:var(--card);
-    box-shadow:0 2px 6px rgba(168,90,40,0.15);
+  .tnode:hover{border-color:var(--rust); z-index:5;}
+  .tnode.is-focus{border:2px solid var(--rust-deep); background:var(--card); box-shadow:0 4px 14px rgba(168,90,40,0.25); z-index:6;}
+  .tn-av{
+    width:32px; height:32px; border-radius:50%; flex:none;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600;
   }
-  .tree-card.placeholder{opacity:0.55; cursor:default; font-style:italic;}
-  .tree-card.placeholder:hover{border-color:var(--card-edge); background:#fffdf6;}
-
-  .couple-row{display:flex; align-items:center; justify-content:center; gap:0;}
-  .couple-join{
-    width:20px; height:2px; background:var(--line); flex:none;
-    position:relative;
+  .tnode.m .tn-av{background:var(--teal);}
+  .tnode.f .tn-av{background:var(--rust);}
+  .tnode.u .tn-av{background:var(--ink-faint);}
+  .tn-body{display:flex; flex-direction:column; min-width:0; line-height:1.15;}
+  .tn-name{font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .tn-years{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-faint);}
+  .tn-gen{
+    position:absolute; top:3px; right:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:var(--brass);
+    opacity:0.7;
   }
-
-  .ctree-root-stem{width:2px; height:20px; background:var(--line); margin:0 auto;}
 
   .tree-empty-note{
-    text-align:center; color:var(--ink-faint); font-style:italic; font-size:13.5px;
-    padding:14px 0;
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    color:var(--ink-faint); font-style:italic; font-size:14px;
   }
-  .tree-union-caption{
-    text-align:center; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint);
-    margin:14px 0 -8px;
-  }
-  .tree-divider{border:none; border-top:1px dashed var(--card-edge); margin:26px 0 4px;}
 
   footer{text-align:center; font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-faint); margin-top:34px;}
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
@@ -483,15 +497,24 @@
 
     <div class="tab-panel" id="tabTree" role="tabpanel" aria-labelledby="tabBtnTree">
       <div class="panel-label">FAMILY TREE</div>
-      <div class="tree-jump">
+      <div class="tree-toolbar">
         <div class="picker" id="treePicker">
           <div class="picker-title">CENTER TREE ON</div>
           <input type="text" id="treeInput" placeholder="Search a name…" autocomplete="off">
           <div class="dropdown" id="treeDropdown"></div>
         </div>
+        <div class="tree-controls">
+          <button class="tz-btn" id="tzOut" aria-label="Zoom out">&minus;</button>
+          <button class="tz-btn" id="tzIn" aria-label="Zoom in">+</button>
+          <button class="tz-btn" id="tzFocus">Recenter</button>
+          <button class="tz-btn solid" id="tzFit">Fit all</button>
+        </div>
       </div>
-      <div class="tree-breadcrumb">Currently viewing <b id="treeFocusName">—</b></div>
-      <div class="tree-stage" id="treeStage"></div>
+      <div class="tree-breadcrumb">Centered on <b id="treeFocusName">—</b></div>
+      <div class="tree-hint">Drag to pan &middot; scroll or pinch to zoom &middot; click a card to travel to that person &middot; click the highlighted card for full details</div>
+      <div class="tree-stage" id="treeStage">
+        <div class="tree-world" id="treeWorld"></div>
+      </div>
     </div>
 
     <div class="tab-panel" id="tabRegister" role="tabpanel" aria-labelledby="tabBtnRegister">
@@ -880,7 +903,10 @@ function activateTab(name){
   });
   if(name==='tree'){
     if(!treeFocusId) treeFocusId = youId || defaultYou;
-    renderTree(treeFocusId);
+    if(!treeInited){ initTreeInteraction(); treeInited = true; }
+    if(treeFocusId !== TREE.focusRendered){
+      renderTree(treeFocusId, {initial: !TREE.everRendered});
+    }
   }
 }
 document.getElementById('tabBtnExplore').addEventListener('click', ()=>activateTab('explore'));
@@ -1067,94 +1093,332 @@ function renderDirectory(filter){
 }
 document.getElementById('dirSearch').addEventListener('input', (e)=>renderDirectory(e.target.value));
 
-/* ---------------- Family tree (pure-CSS connector chart) ---------------- */
-function treeCardHTML(id, opts){
-  opts = opts || {};
-  const cls = ['tree-card'];
-  if(opts.focus) cls.push('is-focus');
-  return `<button class="${cls.join(' ')}" data-id="${id}">
-    ${avatarHTML(id)}
-    <span>
-      <span class="tc-name">${displayName(id)}</span><br>
-      <span class="tc-years">${lifespan(id)}</span>
-    </span>
-  </button>`;
-}
-function wireTreeCards(container){
-  container.querySelectorAll('.tree-card[data-id]').forEach(el=>{
-    el.addEventListener('click', ()=>{
-      treeFocusId = el.dataset.id;
-      renderTree(treeFocusId);
-    });
-  });
-}
+/* ---------------- Family tree: laid-out pan/zoom canvas ---------------- */
+const NW = 178, NH = 60, HGAP = 30, VGAP = 78;
+const ROW_PITCH = NH + VGAP, COUPLE_GAP = 18, PAD = 80;
 
-function renderTree(focusId){
-  treeFocusId = focusId;
-  document.getElementById('treeFocusName').textContent = displayName(focusId);
-  const stage = document.getElementById('treeStage');
-  const parts = [];
+let TREE = { pos:{}, worldW:0, worldH:0, focusRendered:null, everRendered:false };
+let treeInited = false;
+let treeTx = 0, treeTy = 0, treeScale = 0.85;
 
-  /* --- Parents & siblings block --- */
-  const parents = getParents(focusId);
-  const parentFamily = getParentFamily(focusId);
-  const siblings = parentFamily ? sortByBirth(parentFamily.chil.filter(id=>INDI[id])) : [focusId];
+/* Build absolute positions for focus's ancestors, descendants, siblings, spouses */
+function buildLayout(focusId){
+  const pos = {};
 
-  parts.push('<div class="tree-block">');
-  if(parents.length){
-    parts.push('<div class="tree-block-label">Parents</div>');
-    parts.push('<div class="couple-row">');
-    parents.forEach((pid,i)=>{
-      if(i>0) parts.push('<div class="couple-join"></div>');
-      parts.push(treeCardHTML(pid));
-    });
-    parts.push('</div>');
-    parts.push('<div class="ctree-root-stem"></div>');
-  }
-  if(siblings.length>1){
-    parts.push('<div class="tree-block-label">Siblings</div>');
-  }
-  parts.push('<div style="display:flex; justify-content:center; flex-wrap:wrap; gap:14px 10px;">');
-  siblings.forEach(sid=>{
-    parts.push(treeCardHTML(sid, {focus: sid===focusId}));
-  });
-  parts.push('</div>');
-  parts.push('</div>'); // .tree-block
+  /* ---- DESCENDANTS (focus downward) ---- */
+  let cursor = 0;
+  const dseen = new Set();
+  function layoutDesc(id, depth){
+    if(dseen.has(id)) return pos[id] ? pos[id].cx : cursor;
+    dseen.add(id);
+    const y = depth * ROW_PITCH;
+    const fams = getSpouseFamilies(id);
+    let kids = [];
+    fams.forEach(f => (f.chil||[]).forEach(c => { if(INDI[c] && !kids.includes(c)) kids.push(c); }));
+    kids = sortByBirth(kids);
+    const spouse = getSpouses(id)[0] || null;
 
-  /* --- Spouse & children block(s) --- */
-  const spouseFamilies = getSpouseFamilies(focusId);
-  parts.push('<hr class="tree-divider">');
-
-  if(!spouseFamilies.length){
-    parts.push('<div class="tree-empty-note">No spouse or children on record</div>');
-  } else {
-    spouseFamilies.forEach((f, idx)=>{
-      const spouseId = [f.husb,f.wife].find(x=>x && x!==focusId);
-      const children = sortByBirth((f.chil||[]).filter(id=>INDI[id]));
-      if(idx>0) parts.push('<div class="tree-union-caption">also with ' + (spouseId?displayName(spouseId):'unknown partner') + '</div>');
-      parts.push('<div class="tree-block">');
-      parts.push('<div class="couple-row">');
-      parts.push(treeCardHTML(focusId, {focus:true}));
-      if(spouseId){
-        parts.push('<div class="couple-join"></div>');
-        parts.push(treeCardHTML(spouseId));
-      }
-      parts.push('</div>');
-      if(children.length){
-        parts.push('<div class="ctree-root-stem"></div>');
-        parts.push('<div class="tree-block-label">Children</div>');
-        parts.push('<div style="display:flex; justify-content:center; flex-wrap:wrap; gap:14px 10px;">');
-        children.forEach(cid=> parts.push(treeCardHTML(cid)));
-        parts.push('</div>');
+    if(kids.length === 0){
+      const leftCx = cursor + NW/2;
+      pos[id] = { cx: leftCx, cy: y };
+      let center = leftCx;
+      if(spouse && !pos[spouse]){
+        const rightCx = leftCx + NW + COUPLE_GAP;
+        pos[spouse] = { cx: rightCx, cy: y };
+        center = (leftCx + rightCx) / 2;
+        cursor = rightCx + NW/2 + HGAP;
       } else {
-        parts.push('<div class="tree-empty-note">No children on record</div>');
+        cursor = leftCx + NW/2 + HGAP;
       }
-      parts.push('</div>');
+      return center;
+    } else {
+      const childCenters = kids.map(k => layoutDesc(k, depth+1));
+      const center = (childCenters[0] + childCenters[childCenters.length-1]) / 2;
+      if(spouse && !pos[spouse]){
+        pos[id] = { cx: center - (NW+COUPLE_GAP)/2, cy: y };
+        pos[spouse] = { cx: center + (NW+COUPLE_GAP)/2, cy: y };
+      } else {
+        pos[id] = { cx: center, cy: y };
+      }
+      return center;
+    }
+  }
+  layoutDesc(focusId, 0);
+
+  /* ---- SIBLINGS (focus generation, flanking the descendant band) ---- */
+  const focusCx = pos[focusId].cx;
+  const spouse0 = getSpouses(focusId)[0];
+  let minX0 = pos[focusId].cx - NW/2;
+  let maxX0 = pos[focusId].cx + NW/2;
+  if(spouse0 && pos[spouse0]){
+    minX0 = Math.min(minX0, pos[spouse0].cx - NW/2);
+    maxX0 = Math.max(maxX0, pos[spouse0].cx + NW/2);
+  }
+  const sibs = sortByBirth(getSiblings(focusId));
+  const leftSibs = [], rightSibs = [];
+  sibs.forEach((s,i) => (i % 2 === 0 ? leftSibs : rightSibs).push(s));
+  let lx = minX0 - HGAP - NW/2;
+  leftSibs.forEach(s => { if(!pos[s]){ pos[s] = { cx: lx, cy: 0 }; lx -= (NW + HGAP); } });
+  let rx = maxX0 + HGAP + NW/2;
+  rightSibs.forEach(s => { if(!pos[s]){ pos[s] = { cx: rx, cy: 0 }; rx += (NW + HGAP); } });
+
+  /* ---- ANCESTORS (focus upward) ---- */
+  let ancCursor = 0;
+  const ancTmp = {};
+  const aseen = new Set();
+  function layoutAnc(id, depth){
+    if(aseen.has(id)) return ancTmp[id] ? ancTmp[id].x : ancCursor;
+    aseen.add(id);
+    const ps = getParents(id);
+    let x;
+    if(ps.length === 0){
+      x = ancCursor; ancCursor += (NW + HGAP);
+    } else {
+      const cs = ps.map(p => layoutAnc(p, depth+1));
+      x = cs.reduce((a,b)=>a+b,0) / cs.length;
+    }
+    if(depth >= 1) ancTmp[id] = { x, depth };
+    return x;
+  }
+  const fparents = getParents(focusId);
+  if(fparents.length){
+    const pcs = fparents.map(p => layoutAnc(p, 1));
+    const ancAnchorX = pcs.reduce((a,b)=>a+b,0) / pcs.length;
+    const shift = pos[focusId].cx - ancAnchorX;
+    Object.keys(ancTmp).forEach(id => {
+      if(!pos[id]) pos[id] = { cx: ancTmp[id].x + shift, cy: -ancTmp[id].depth * ROW_PITCH };
     });
   }
 
-  stage.innerHTML = parts.join('');
-  wireTreeCards(stage);
+  /* ---- de-overlap each row (push right, keep couples close) ---- */
+  const rows = {};
+  Object.keys(pos).forEach(id => {
+    const k = Math.round(pos[id].cy);
+    (rows[k] = rows[k] || []).push(id);
+  });
+  Object.values(rows).forEach(ids => {
+    ids.sort((a,b) => pos[a].cx - pos[b].cx);
+    for(let i=1; i<ids.length; i++){
+      const prev = pos[ids[i-1]], cur = pos[ids[i]];
+      const needed = areSpouses(ids[i-1], ids[i]) ? (NW + COUPLE_GAP) : (NW + HGAP);
+      const gap = cur.cx - prev.cx;
+      if(gap < needed){
+        const delta = needed - gap;
+        for(let j=i; j<ids.length; j++) pos[ids[j]].cx += delta;
+      }
+    }
+  });
+
+  /* ---- normalize to positive coords + padding ---- */
+  let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
+  Object.values(pos).forEach(p => {
+    minX = Math.min(minX, p.cx - NW/2); maxX = Math.max(maxX, p.cx + NW/2);
+    minY = Math.min(minY, p.cy - NH/2); maxY = Math.max(maxY, p.cy + NH/2);
+  });
+  const offX = PAD - minX, offY = PAD - minY;
+  Object.values(pos).forEach(p => { p.cx += offX; p.cy += offY; });
+  const worldW = (maxX - minX) + 2*PAD;
+  const worldH = (maxY - minY) + 2*PAD;
+
+  return { pos, worldW, worldH };
+}
+
+function buildConnectors(pos){
+  const seg = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
+  let out = '';
+  Object.values(FAM).forEach(f => {
+    const parents = [f.husb, f.wife].filter(p => p && pos[p]);
+    const kids = (f.chil||[]).filter(c => pos[c]);
+    // couple bar
+    if(parents.length === 2){
+      const a = pos[parents[0]], b = pos[parents[1]];
+      if(Math.abs(a.cy - b.cy) < 1){
+        const left = Math.min(a.cx, b.cx) + NW/2;
+        const right = Math.max(a.cx, b.cx) - NW/2;
+        if(right > left) out += seg(left, a.cy, right, a.cy);
+      }
+    }
+    // parent -> children bus
+    if(parents.length && kids.length){
+      let ax, ay;
+      if(parents.length === 2 && Math.abs(pos[parents[0]].cy - pos[parents[1]].cy) < 1){
+        ax = (pos[parents[0]].cx + pos[parents[1]].cx) / 2;
+        ay = pos[parents[0]].cy + NH/2;
+      } else {
+        ax = pos[parents[0]].cx;
+        ay = pos[parents[0]].cy + NH/2;
+      }
+      const childTop = Math.min.apply(null, kids.map(c => pos[c].cy - NH/2));
+      const busY = ay + (childTop - ay) / 2;
+      out += seg(ax, ay, ax, busY);
+      const xs = kids.map(c => pos[c].cx).concat(ax);
+      out += seg(Math.min.apply(null, xs), busY, Math.max.apply(null, xs), busY);
+      kids.forEach(c => out += seg(pos[c].cx, busY, pos[c].cx, pos[c].cy - NH/2));
+    }
+  });
+  return out;
+}
+
+function treeNodeHTML(id, focusId){
+  const p = pos_(id);
+  const gen = ''; // reserved
+  return `<button class="tnode ${sexClass(id)} ${id===focusId?'is-focus':''}" data-id="${id}"
+     style="left:${p.cx - NW/2}px; top:${p.cy - NH/2}px; width:${NW}px; height:${NH}px;">
+     <span class="tn-av">${initials(id)}</span>
+     <span class="tn-body">
+       <span class="tn-name">${displayName(id)}</span>
+       <span class="tn-years">${lifespan(id) || '—'}</span>
+     </span>
+   </button>`;
+}
+function pos_(id){ return TREE.pos[id]; }
+
+function renderTree(focusId, opts){
+  opts = opts || {};
+  treeFocusId = focusId;
+  const L = buildLayout(focusId);
+  TREE.pos = L.pos;
+  TREE.worldW = L.worldW;
+  TREE.worldH = L.worldH;
+  TREE.focusRendered = focusId;
+
+  document.getElementById('treeFocusName').textContent = displayName(focusId);
+
+  const world = document.getElementById('treeWorld');
+  world.style.width = L.worldW + 'px';
+  world.style.height = L.worldH + 'px';
+
+  const ids = Object.keys(L.pos);
+  const svg = `<svg width="${L.worldW}" height="${L.worldH}" viewBox="0 0 ${L.worldW} ${L.worldH}">${buildConnectors(L.pos)}</svg>`;
+  const cards = ids.map(id => treeNodeHTML(id, focusId)).join('');
+  world.innerHTML = svg + cards;
+
+  world.querySelectorAll('.tnode').forEach(el => {
+    el.addEventListener('pointerdown', e => e.stopPropagation());
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const id = el.dataset.id;
+      if(id === treeFocusId){
+        showDetail(id);
+      } else {
+        renderTree(id, {});
+        centerOnFocus(true);
+      }
+    });
+  });
+
+  if(opts.initial){
+    const stage = document.getElementById('treeStage');
+    const sh = stage.clientHeight || 560;
+    const fitH = (sh * 0.9) / (3.4 * ROW_PITCH);
+    treeScale = Math.max(0.5, Math.min(1, fitH));
+    centerOnFocus(false);
+    TREE.everRendered = true;
+  } else if(!opts.keepView){
+    centerOnFocus(true);
+  }
+}
+
+/* ---- pan / zoom interaction ---- */
+function applyTreeTransform(animate){
+  const world = document.getElementById('treeWorld');
+  world.style.transition = animate ? 'transform .45s cubic-bezier(.22,.61,.36,1)' : 'none';
+  world.style.transform = `translate(${treeTx}px, ${treeTy}px) scale(${treeScale})`;
+}
+function centerOnFocus(animate){
+  const stage = document.getElementById('treeStage');
+  const sw = stage.clientWidth, sh = stage.clientHeight;
+  const f = TREE.pos[treeFocusId];
+  if(!f) return;
+  treeTx = sw/2 - f.cx * treeScale;
+  treeTy = sh/2 - f.cy * treeScale;
+  applyTreeTransform(animate);
+}
+function fitTree(){
+  const stage = document.getElementById('treeStage');
+  const sw = stage.clientWidth, sh = stage.clientHeight;
+  const s = Math.min(sw / TREE.worldW, sh / TREE.worldH) * 0.94;
+  treeScale = Math.max(0.15, Math.min(1.1, s));
+  treeTx = (sw - TREE.worldW * treeScale) / 2;
+  treeTy = (sh - TREE.worldH * treeScale) / 2;
+  applyTreeTransform(true);
+}
+function zoomAround(px, py, factor){
+  const newScale = Math.max(0.15, Math.min(2.4, treeScale * factor));
+  const wx = (px - treeTx) / treeScale;
+  const wy = (py - treeTy) / treeScale;
+  treeScale = newScale;
+  treeTx = px - wx * treeScale;
+  treeTy = py - wy * treeScale;
+  applyTreeTransform(false);
+}
+function initTreeInteraction(){
+  const stage = document.getElementById('treeStage');
+  const pointers = new Map();
+  let panning = false, startX=0, startY=0, startTx=0, startTy=0;
+  let pinchDist = 0;
+
+  stage.addEventListener('pointerdown', e => {
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 1){
+      panning = true;
+      startX = e.clientX; startY = e.clientY;
+      startTx = treeTx; startTy = treeTy;
+      stage.classList.add('grabbing');
+      stage.setPointerCapture(e.pointerId);
+    } else if(pointers.size === 2){
+      panning = false;
+      const pts = [...pointers.values()];
+      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+    }
+  });
+  stage.addEventListener('pointermove', e => {
+    if(!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(pointers.size === 2){
+      const pts = [...pointers.values()];
+      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      if(pinchDist > 0){
+        const rect = stage.getBoundingClientRect();
+        const mx = (pts[0].x + pts[1].x)/2 - rect.left;
+        const my = (pts[0].y + pts[1].y)/2 - rect.top;
+        zoomAround(mx, my, d / pinchDist);
+      }
+      pinchDist = d;
+      return;
+    }
+    if(panning){
+      treeTx = startTx + (e.clientX - startX);
+      treeTy = startTy + (e.clientY - startY);
+      applyTreeTransform(false);
+    }
+  });
+  function endPointer(e){
+    pointers.delete(e.pointerId);
+    if(pointers.size < 2) pinchDist = 0;
+    if(pointers.size === 0){ panning = false; stage.classList.remove('grabbing'); }
+  }
+  stage.addEventListener('pointerup', endPointer);
+  stage.addEventListener('pointercancel', endPointer);
+  stage.addEventListener('pointerleave', e => { if(pointers.size===0){ panning=false; stage.classList.remove('grabbing'); } });
+
+  stage.addEventListener('wheel', e => {
+    e.preventDefault();
+    const rect = stage.getBoundingClientRect();
+    const px = e.clientX - rect.left, py = e.clientY - rect.top;
+    zoomAround(px, py, e.deltaY < 0 ? 1.12 : 1/1.12);
+  }, {passive:false});
+
+  document.getElementById('tzIn').addEventListener('click', () => {
+    const stage = document.getElementById('treeStage');
+    zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1.2);
+  });
+  document.getElementById('tzOut').addEventListener('click', () => {
+    const stage = document.getElementById('treeStage');
+    zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1/1.2);
+  });
+  document.getElementById('tzFit').addEventListener('click', fitTree);
+  document.getElementById('tzFocus').addEventListener('click', () => centerOnFocus(true));
 }
 
 /* ---------------- Gate ---------------- */
