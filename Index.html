@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gropper Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1f2a34;
+    --ink-soft:#4a5a66;
+    --ink-faint:#7d8b93;
+    --paper:#e8e0c9;
+    --paper-deep:#dcd0ac;
+    --card:#f6f1e2;
+    --card-edge:#d5c8a2;
+    --rust:#a85a28;
+    --rust-deep:#8a4a20;
+    --brass:#8f7238;
+    --teal:#2c5457;
+    --line:#c3b48a;
+    --shadow: 0 1px 0 rgba(31,42,52,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(ellipse at top left, rgba(255,255,255,0.35), transparent 55%),
+      var(--paper);
+    color:var(--ink);
+    font-family:'Newsreader', serif;
+    font-size:16px;
+    line-height:1.5;
+    min-height:100vh;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  /* ---------- Header ---------- */
+  header.masthead{
+    border-bottom:2px solid var(--ink);
+    padding-bottom:18px;
+    margin-bottom:28px;
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .masthead-title{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:clamp(28px,5vw,42px);
+    letter-spacing:-0.01em;
+    line-height:1.05;
+  }
+  .masthead-sub{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:0.04em;
+    color:var(--ink-soft);
+    margin-top:6px;
+  }
+  .masthead-count{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    text-align:right;
+    border:1px solid var(--ink);
+    padding:6px 10px;
+    white-space:nowrap;
+  }
+  .masthead-count b{color:var(--ink);font-size:15px;}
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:var(--card);
+    border:1px solid var(--card-edge);
+    box-shadow:var(--shadow);
+    padding:22px 22px 24px;
+    margin-bottom:22px;
+  }
+  .panel-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.06em;
+    color:var(--brass);
+    margin-bottom:12px;
+  }
+
+  /* ---------- Picker rows ---------- */
+  .picker-row{
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    gap:16px;
+    align-items:start;
+  }
+  @media (max-width:640px){
+    .picker-row{grid-template-columns:1fr;}
+    .picker-mid{order:2; justify-self:center;}
+  }
+  .picker{position:relative;}
+  .picker-title{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:10.5px;
+    letter-spacing:0.05em;
+    color:var(--ink-faint);
+    margin-bottom:6px;
+  }
+  .picker input[type=text]{
+    width:100%;
+    font-family:'Newsreader', serif;
+    font-size:17px;
+    padding:10px 12px;
+    border:1px solid var(--ink);
+    background:#fffdf6;
+    color:var(--ink);
+  }
+  .picker input[type=text]:focus{outline:2px solid var(--rust); outline-offset:1px;}
+  .picker-selected{
+    margin-top:10px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .avatar{
+    width:38px;height:38px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    font-weight:600;
+    color:#fff;
+    flex:none;
+  }
+  .avatar.m{background:var(--teal);}
+  .avatar.f{background:var(--rust);}
+  .avatar.u{background:var(--ink-faint);}
+  .selected-name{font-weight:600;font-size:16px;}
+  .selected-meta{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
+
+  .picker-mid{
+    display:flex;align-items:center;justify-content:center;
+    padding-top:30px;
+  }
+  .picker-mid svg{width:26px;height:26px;opacity:0.55;}
+
+  .dropdown{
+    position:absolute;
+    top:calc(100% + 2px);
+    left:0;right:0;
+    background:#fffdf6;
+    border:1px solid var(--ink);
+    max-height:260px;
+    overflow-y:auto;
+    z-index:20;
+    box-shadow:0 6px 16px rgba(31,42,52,0.18);
+  }
+  .dropdown-item{
+    padding:9px 12px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    font-size:14.5px;
+    border-bottom:1px solid #ece3c9;
+  }
+  .dropdown-item:last-child{border-bottom:none;}
+  .dropdown-item:hover, .dropdown-item.active{background:var(--paper-deep);}
+  .dropdown-item .dyears{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);white-space:nowrap;}
+  .dropdown-empty{padding:10px 12px;font-size:13.5px;color:var(--ink-faint);font-style:italic;}
+
+  /* ---------- Relationship result ---------- */
+  #relResult{display:none;}
+  .rel-headline{
+    text-align:center;
+    padding:6px 0 20px;
+  }
+  .rel-headline .rel-of{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--ink-soft);
+    letter-spacing:0.03em;
+  }
+  .rel-headline .rel-term{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:clamp(24px,4.4vw,34px);
+    color:var(--rust-deep);
+    margin-top:2px;
+  }
+
+  .chain{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:0;
+    max-width:520px;
+    margin:0 auto;
+  }
+  .chain-node{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px 4px;
+    cursor:pointer;
+  }
+  .chain-node:hover .selected-name{text-decoration:underline;}
+  .chain-node .avatar{width:44px;height:44px;font-size:15px;}
+  .chain-node.endpoint{background:rgba(168,90,40,0.07); border:1px solid var(--card-edge); padding:12px 14px;}
+  .chain-node.ancestor .avatar{box-shadow:0 0 0 3px var(--paper), 0 0 0 4px var(--brass);}
+  .chain-connector{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding-left:22px;
+    margin-left:22px;
+    border-left:2px dotted var(--line);
+    height:26px;
+  }
+  .chain-connector span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.04em;
+    color:var(--ink-faint);
+    text-transform:uppercase;
+  }
+  .chain-node-info{flex:1;min-width:0;}
+  .chain-node-info .selected-name{font-size:16.5px;}
+  .chain-node .role-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--brass);
+    letter-spacing:0.04em;
+    text-transform:uppercase;
+    margin-bottom:1px;
+  }
+
+  .rel-note{
+    max-width:520px;
+    margin:16px auto 0;
+    font-size:13.5px;
+    color:var(--ink-soft);
+    font-style:italic;
+    text-align:center;
+  }
+
+  /* ---------- Detail panel ---------- */
+  #detailPanel{display:none;}
+  .detail-head{display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;}
+  .detail-head .avatar{width:52px;height:52px;font-size:18px;}
+  .detail-name{font-family:'Fraunces',serif;font-weight:600;font-size:24px;}
+  .detail-dates{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:3px;}
+  .detail-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.03em;
+    background:var(--ink);
+    color:var(--paper);
+    border:1px solid var(--ink);
+    padding:8px 12px;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--rust-deep);border-color:var(--rust-deep);}
+  .btn.ghost{background:transparent;color:var(--ink);}
+  .btn.ghost:hover{background:var(--card-edge);}
+
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+  @media (max-width:600px){.detail-grid{grid-template-columns:1fr;}}
+  .detail-section h4{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:0.06em;
+    color:var(--brass);
+    margin:0 0 8px;
+    text-transform:uppercase;
+  }
+  .person-chip{
+    display:flex;align-items:center;gap:8px;
+    padding:6px 4px;
+    cursor:pointer;
+    border-bottom:1px solid #ece3c9;
+  }
+  .person-chip:last-child{border-bottom:none;}
+  .person-chip:hover{background:var(--paper-deep);}
+  .person-chip .avatar{width:28px;height:28px;font-size:11px;}
+  .person-chip .cname{font-size:14.5px;}
+  .person-chip .cyears{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);margin-left:auto;}
+  .empty-note{color:var(--ink-faint);font-style:italic;font-size:13.5px;}
+  .facts-list{list-style:none;margin:0;padding:0;font-size:14px;}
+  .facts-list li{padding:4px 0;border-bottom:1px solid #ece3c9;}
+  .facts-list li:last-child{border-bottom:none;}
+
+  /* ---------- Directory ---------- */
+  .directory-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+  .directory-controls input[type=text]{
+    flex:1;min-width:180px;
+    font-family:'Newsreader', serif;
+    font-size:15px;
+    padding:8px 10px;
+    border:1px solid var(--ink);
+    background:#fffdf6;
+  }
+  .directory-count{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);}
+  .directory-list{max-height:420px;overflow-y:auto;border-top:1px solid var(--card-edge);}
+  .dir-letter{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;color:var(--brass);
+    padding:10px 4px 4px;
+    letter-spacing:0.05em;
+  }
+  .dir-item{
+    display:flex;align-items:center;gap:10px;
+    padding:7px 4px;
+    cursor:pointer;
+    border-bottom:1px solid #ece3c9;
+  }
+  .dir-item:hover{background:var(--paper-deep);}
+  .dir-item .avatar{width:26px;height:26px;font-size:10.5px;}
+  .dir-item .diname{font-size:14.5px;flex:1;}
+  .dir-item .diyears{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
+
+  footer{
+    text-align:center;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--ink-faint);
+    margin-top:34px;
+  }
+
+  .hint{font-size:14px;color:var(--ink-soft);}
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="masthead-title">The Gropper Register</div>
+      <div class="masthead-sub">BOTOȘANI &middot; TRANSNISTRIA &middot; ITALY &middot; CUBA &middot; TORONTO</div>
+    </div>
+    <div class="masthead-count"><b id="peopleCount">—</b> people on record</div>
+  </header>
+
+  <section class="panel">
+    <div class="panel-label">FIND A RELATION</div>
+    <div class="picker-row">
+      <div class="picker" id="youPicker">
+        <div class="picker-title">YOU ARE</div>
+        <input type="text" id="youInput" placeholder="Search a name…" autocomplete="off">
+        <div class="dropdown" id="youDropdown"></div>
+        <div class="picker-selected" id="youSelected"></div>
+      </div>
+      <div class="picker-mid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+      </div>
+      <div class="picker" id="targetPicker">
+        <div class="picker-title">RELATED TO</div>
+        <input type="text" id="targetInput" placeholder="Search a name…" autocomplete="off">
+        <div class="dropdown" id="targetDropdown"></div>
+        <div class="picker-selected" id="targetSelected"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="relResult">
+    <div class="rel-headline">
+      <div class="rel-of" id="relOf"></div>
+      <div class="rel-term" id="relTerm"></div>
+    </div>
+    <div class="chain" id="relChain"></div>
+    <div class="rel-note" id="relNote"></div>
+  </section>
+
+  <section class="panel" id="detailPanel">
+    <div class="detail-head">
+      <div class="avatar" id="detailAvatar"></div>
+      <div>
+        <div class="detail-name" id="detailName"></div>
+        <div class="detail-dates" id="detailDates"></div>
+      </div>
+      <div class="detail-actions">
+        <button class="btn" id="detailMakeYou">Make this "You"</button>
+        <button class="btn ghost" id="detailRelate">Relation to you</button>
+      </div>
+    </div>
+    <ul class="facts-list" id="detailFacts"></ul>
+    <div class="detail-grid" style="margin-top:16px;">
+      <div class="detail-section">
+        <h4>Parents</h4>
+        <div id="detailParents"></div>
+      </div>
+      <div class="detail-section">
+        <h4>Spouse(s)</h4>
+        <div id="detailSpouses"></div>
+      </div>
+      <div class="detail-section">
+        <h4>Children</h4>
+        <div id="detailChildren"></div>
+      </div>
+      <div class="detail-section">
+        <h4>Siblings</h4>
+        <div id="detailSiblings"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-label">FULL REGISTER</div>
+    <div class="directory-controls">
+      <input type="text" id="dirSearch" placeholder="Filter the register…">
+      <div class="directory-count"><span id="dirCount">0</span> shown</div>
+    </div>
+    <div class="directory-list" id="directoryList"></div>
+  </section>
+
+  <footer>Compiled from a GEDCOM family archive &middot; browse, don't just look</footer>
+</div>
+
+<script>
+const DATA = {"individuals": {"@I12622904170@": {"id": "@I12622904170@", "name": "Lony Gropper", "given": "Lony", "surname": "Gropper", "sex": "M", "birthDate": "23 JUN 1931", "birthPlace": "Botosani, Romania", "deathDate": "", "deathPlace": "", "famc": ["@F27@"], "fams": ["@F21@"], "facts": [{"type": "Fact 1", "place": "Office Clerk, Business Owner", "date": ""}, {"type": "Fact 2", "place": "Toronto, ON, Canada", "date": ""}, {"type": "Fact 4", "place": "Moved to Italy 1948, Cuba, Canada", "date": ""}]}, "@I12622904068@": {"id": "@I12622904068@", "name": "Ionas Gropper", "given": "Ionas", "surname": "Gropper", "sex": "M", "birthDate": "ABT 1800", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F72@"], "facts": [{"type": "Fact 1", "place": "Farm Administrator", "date": ""}, {"type": "Fact 2", "place": "Lived in Talpa, Romania", "date": ""}]}, "@I12622904069@": {"id": "@I12622904069@", "name": "(First Wife)", "given": "", "surname": "(First Wife)", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F73@"], "facts": [{"type": "Fact 3", "place": "Older rich widow.", "date": ""}]}, "@I12622904070@": {"id": "@I12622904070@", "name": "(Second Wife)", "given": "", "surname": "(Second Wife)", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F74@"], "facts": []}, "@I12622904071@": {"id": "@I12622904071@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F72@"], "facts": [{"type": "Fact 2", "place": "Lived in Talpa, Romania", "date": ""}]}, "@I12622904072@": {"id": "@I12622904072@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F54@"], "facts": []}, "@I12622904073@": {"id": "@I12622904073@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F75@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904074@": {"id": "@I12622904074@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F76@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904075@": {"id": "@I12622904075@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F77@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904076@": {"id": "@I12622904076@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F78@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904077@": {"id": "@I12622904077@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F79@"], "facts": [{"type": "Fact 4", "place": "Moved to Eretz, Palestine 1889", "date": ""}]}, "@I12622904078@": {"id": "@I12622904078@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F41@"], "facts": []}, "@I12622904079@": {"id": "@I12622904079@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F80@"], "facts": [{"type": "Fact 4", "place": "Rebecca in Craiova, Romania", "date": ""}]}, "@I12622904080@": {"id": "@I12622904080@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F37@"], "facts": [{"type": "Fact 3", "place": "Sephardic Jew", "date": ""}]}, "@I12622904081@": {"id": "@I12622904081@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F49@"], "facts": [{"type": "Fact 2", "place": "Hilton-Head SC, USA", "date": ""}]}, "@I12622904082@": {"id": "@I12622904082@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F81@"], "facts": []}, "@I12622904083@": {"id": "@I12622904083@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F29@"], "facts": []}, "@I12622904084@": {"id": "@I12622904084@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F50@"], "facts": []}, "@I12622904085@": {"id": "@I12622904085@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F33@"], "facts": []}, "@I12622904086@": {"id": "@I12622904086@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F82@", "@F83@"], "facts": [{"type": "Fact 3", "place": "A widower.", "date": ""}]}, "@I12622904087@": {"id": "@I12622904087@", "name": "", "given": "", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F82@"], "facts": []}, "@I12622904088@": {"id": "@I12622904088@", "name": "", "given": "", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F84@"], "facts": []}, "@I12622904089@": {"id": "@I12622904089@", "name": "Gladys Applebaum", "given": "Gladys", "surname": "Applebaum", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F20@"], "facts": [{"type": "Fact 2", "place": "Flushing NY, USA", "date": ""}]}, "@I12622904090@": {"id": "@I12622904090@", "name": "Brenda Becker", "given": "Brenda", "surname": "Becker", "sex": "F", "birthDate": "19 MAR 1939", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F30@"], "facts": [{"type": "Fact 1", "place": "Food Business Owner", "date": ""}, {"type": "Fact 2", "place": "Manhattan, NY, USA", "date": ""}]}, "@I12622904091@": {"id": "@I12622904091@", "name": "abigail aviva Berman", "given": "abigail aviva", "surname": "Berman", "sex": "F", "birthDate": "20 MAR 2003", "birthPlace": "Toronto, ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F34@"], "fams": [], "facts": []}, "@I12622904092@": {"id": "@I12622904092@", "name": "Drew Berman", "given": "Drew", "surname": "Berman", "sex": "M", "birthDate": "09 APR 1962", "birthPlace": "Winnipeg MN, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F8@"], "fams": ["@F34@"], "facts": [{"type": "Fact 1", "place": "Lawyer", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904093@": {"id": "@I12622904093@", "name": "harrison  avraham lev berman", "given": "harrison  avraham lev", "surname": "berman", "sex": "M", "birthDate": "22 JUN 2000", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F34@"], "fams": [], "facts": []}, "@I12622904094@": {"id": "@I12622904094@", "name": "joseph ezra Berman", "given": "joseph ezra", "surname": "Berman", "sex": "M", "birthDate": "18 OCT 2004", "birthPlace": "Toronto, ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F34@"], "fams": [], "facts": []}, "@I12622904095@": {"id": "@I12622904095@", "name": "Gillian Erin (Gali Eli) Blustein", "given": "Gillian Erin (Gali Eli)", "surname": "Blustein", "sex": "F", "birthDate": "27 MAY 1991", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F31@"], "fams": ["@F85@"], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904096@": {"id": "@I12622904096@", "name": "Jamie (Molly Michal) Blustein", "given": "Jamie (Molly Michal)", "surname": "Blustein", "sex": "F", "birthDate": "22 MAR 1996", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F31@"], "fams": ["@F1@"], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904097@": {"id": "@I12622904097@", "name": "Marni Anne (Miriam Chana) Blustein", "given": "Marni Anne (Miriam Chana)", "surname": "Blustein", "sex": "F", "birthDate": "23 AUG 1989", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F31@"], "fams": ["@F5@"], "facts": [{"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904098@": {"id": "@I12622904098@", "name": "Steven Blustein", "given": "Steven", "surname": "Blustein", "sex": "M", "birthDate": "06 APR 1960", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F31@"], "facts": [{"type": "Fact 1", "place": "Stock Broker", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904099@": {"id": "@I12622904099@", "name": "Edward Braunstein", "given": "Edward", "surname": "Braunstein", "sex": "M", "birthDate": "16 JAN 1920", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F65@"], "facts": []}, "@I12622904100@": {"id": "@I12622904100@", "name": "Paul Braunstein", "given": "Paul", "surname": "Braunstein", "sex": "M", "birthDate": "16 NOV 1954", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F65@"], "fams": [], "facts": []}, "@I12622904101@": {"id": "@I12622904101@", "name": "Chaia", "given": "", "surname": "Chaia", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F62@"], "facts": []}, "@I12622904102@": {"id": "@I12622904102@", "name": "Second Child", "given": "Second", "surname": "Child", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F15@"], "fams": [], "facts": []}, "@I12622904103@": {"id": "@I12622904103@", "name": "Other Thirteen Children", "given": "Other Thirteen", "surname": "Children", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F48@"], "fams": [], "facts": []}, "@I12622904104@": {"id": "@I12622904104@", "name": "Possible Other Children", "given": "Possible Other", "surname": "Children", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F62@"], "fams": [], "facts": []}, "@I12622904105@": {"id": "@I12622904105@", "name": "Cohen", "given": "", "surname": "Cohen", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F66@"], "facts": []}, "@I12622904106@": {"id": "@I12622904106@", "name": "Deborah Cohn", "given": "Deborah", "surname": "Cohn", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F25@"], "facts": []}, "@I12622904107@": {"id": "@I12622904107@", "name": "Daughter", "given": "", "surname": "Daughter", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F110@"], "fams": ["@F111@"], "facts": []}, "@I12622904108@": {"id": "@I12622904108@", "name": "Daughter", "given": "", "surname": "Daughter", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F110@"], "fams": [], "facts": []}, "@I12622904109@": {"id": "@I12622904109@", "name": "Daughter", "given": "", "surname": "Daughter", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F110@"], "fams": [], "facts": []}, "@I12622904110@": {"id": "@I12622904110@", "name": "Daughter", "given": "", "surname": "Daughter", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F111@"], "fams": [], "facts": []}, "@I12622904111@": {"id": "@I12622904111@", "name": "Elyse", "given": "", "surname": "Elyse", "sex": "F", "birthDate": "28 MAY 1960", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F15@"], "facts": []}, "@I12622904112@": {"id": "@I12622904112@", "name": "Sylvia Fiske", "given": "Sylvia", "surname": "Fiske", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F32@"], "facts": [{"type": "Fact 4", "place": "Retired in Tampa, Florida USA", "date": ""}]}, "@I12622904113@": {"id": "@I12622904113@", "name": "Florence", "given": "", "surname": "Florence", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F67@"], "facts": []}, "@I12622904114@": {"id": "@I12622904114@", "name": "Florica", "given": "", "surname": "Florica", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F68@"], "facts": []}, "@I12622904115@": {"id": "@I12622904115@", "name": "Ernestina Garnick", "given": "Ernestina", "surname": "Garnick", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F45@"], "facts": [{"type": "Fact 2", "place": "Lived in N.Y.C., USA", "date": ""}]}, "@I12622904116@": {"id": "@I12622904116@", "name": "Peggy Gelb", "given": "Peggy", "surname": "Gelb", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F53@"], "facts": [{"type": "Fact 2", "place": "Ocean Side, L.Island, USA", "date": ""}]}, "@I12622904117@": {"id": "@I12622904117@", "name": "Pauline Glaubach", "given": "Pauline", "surname": "Glaubach", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F69@"], "facts": [{"type": "Fact 3", "place": "Aaron's cousin", "date": ""}]}, "@I12622904118@": {"id": "@I12622904118@", "name": "Aaron Gropper", "given": "Aaron", "surname": "Gropper", "sex": "M", "birthDate": "24 OCT 1893", "birthPlace": "n.Dorohoi, Moldova", "deathDate": "", "deathPlace": "Buenos Aires, Buenos Aires, Argentina", "famc": ["@F93@"], "fams": ["@F69@"], "facts": [{"type": "Fact 1", "place": "Insurance Rep., Cafe Owner", "date": ""}, {"type": "Fact 4", "place": "Moved to Italy, Argentina", "date": ""}]}, "@I12622904119@": {"id": "@I12622904119@", "name": "Adam (Daniel Mark) Gropper", "given": "Adam (Daniel Mark)", "surname": "Gropper", "sex": "M", "birthDate": "11 FEB 1998", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F42@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904120@": {"id": "@I12622904120@", "name": "Alan Gropper", "given": "Alan", "surname": "Gropper", "sex": "M", "birthDate": "28 MAR 1950", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F20@"], "fams": [], "facts": []}, "@I12622904121@": {"id": "@I12622904121@", "name": "Alexander Eliahu Gropper", "given": "Alexander Eliahu", "surname": "Gropper", "sex": "M", "birthDate": "1911", "birthPlace": "", "deathDate": "1977", "deathPlace": "", "famc": ["@F46@"], "fams": ["@F70@"], "facts": [{"type": "Fact 1", "place": "In leather business.", "date": ""}]}, "@I12622904122@": {"id": "@I12622904122@", "name": "Alix (Corinne Chana) Gropper", "given": "Alix (Corinne Chana)", "surname": "Gropper", "sex": "F", "birthDate": "27 MAR 1991", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F42@"], "fams": ["@F11@"], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904123@": {"id": "@I12622904123@", "name": "Allyson Gropper", "given": "Allyson", "surname": "Gropper", "sex": "F", "birthDate": "29 JUL 1992", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F47@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Vienna VA, USA", "date": ""}]}, "@I12622904124@": {"id": "@I12622904124@", "name": "Aron Gropper", "given": "Aron", "surname": "Gropper", "sex": "M", "birthDate": "1980", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F67@"], "fams": [], "facts": []}, "@I12622904125@": {"id": "@I12622904125@", "name": "Aurel Gropper", "given": "Aurel", "surname": "Gropper", "sex": "M", "birthDate": "1919", "birthPlace": "", "deathDate": "1989", "deathPlace": "buenos aires", "famc": ["@F57@"], "fams": ["@F68@"], "facts": [{"type": "Fact 1", "place": "Wholesaler", "date": ""}, {"type": "Fact 2", "place": "Lived in Craiova, Buchurest, Romania", "date": ""}, {"type": "Fact 4", "place": "Moved to Italy 48, B.A., Argentina 50", "date": ""}]}, "@I12622904126@": {"id": "@I12622904126@", "name": "Aurel Gropper", "given": "Aurel", "surname": "Gropper", "sex": "M", "birthDate": "1 May 1928", "birthPlace": "Botoshani, Romania", "deathDate": "6 Dec 2019", "deathPlace": "Toronto ON, Canada", "famc": ["@F27@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Studied in Milano, Italy", "date": ""}, {"type": "Fact 4", "place": "Palestine 1947, Argentina, Canada 1965", "date": ""}]}, "@I12622904127@": {"id": "@I12622904127@", "name": "Batia (Bassie?) Gropper", "given": "Batia (Bassie?)", "surname": "Gropper", "sex": "F", "birthDate": "ABT 1859", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F63@"], "fams": ["@F71@"], "facts": []}, "@I12622904128@": {"id": "@I12622904128@", "name": "Berl Gropper", "given": "Berl", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F63@"], "fams": ["@F41@"], "facts": [{"type": "Fact 1", "place": "Tavern Owner", "date": ""}, {"type": "Fact 4", "place": "Moved to Bacau, Romania", "date": ""}]}, "@I12622904129@": {"id": "@I12622904129@", "name": "Bernard Gropper", "given": "Bernard", "surname": "Gropper", "sex": "M", "birthDate": "10 JUN 1962", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F21@"], "fams": ["@F42@"], "facts": [{"type": "Fact 1", "place": "Lawyer", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904130@": {"id": "@I12622904130@", "name": "Bruce Gropper", "given": "Bruce", "surname": "Gropper", "sex": "M", "birthDate": "09 SEP 1963", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F30@"], "fams": ["@F43@"], "facts": [{"type": "Fact 1", "place": "Businessman", "date": ""}]}, "@I12622904131@": {"id": "@I12622904131@", "name": "Caroline Gropper", "given": "Caroline", "surname": "Gropper", "sex": "F", "birthDate": "23 APR 1942", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F32@"], "fams": ["@F44@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904132@": {"id": "@I12622904132@", "name": "Chaim Gropper", "given": "Chaim", "surname": "Gropper", "sex": "M", "birthDate": "1884", "birthPlace": "Romania", "deathDate": "1944", "deathPlace": "USA", "famc": ["@F93@"], "fams": ["@F45@"], "facts": [{"type": "Fact 1", "place": "Salesman", "date": ""}, {"type": "Fact 3", "place": "Visited Romania 1912", "date": ""}, {"type": "Fact 4", "place": "Moved to N.Y.C., USA abt. 1900", "date": ""}]}, "@I12622904133@": {"id": "@I12622904133@", "name": "Charles Gropper", "given": "Charles", "surname": "Gropper", "sex": "M", "birthDate": "15 AUG 1961", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F53@"], "fams": [], "facts": [{"type": "Fact 1", "place": "M.D. Dermatologist", "date": ""}, {"type": "Fact 2", "place": "New York NY, USA", "date": ""}]}, "@I12622904134@": {"id": "@I12622904134@", "name": "Clara Gropper", "given": "Clara", "surname": "Gropper", "sex": "F", "birthDate": "1892", "birthPlace": "Romania", "deathDate": "FEB 1960", "deathPlace": "", "famc": ["@F48@"], "fams": ["@F46@"], "facts": [{"type": "Fact 3", "place": "Harry's cousin", "date": ""}, {"type": "Fact 4", "place": "Moved to USA 1909", "date": ""}]}, "@I12622904135@": {"id": "@I12622904135@", "name": "Daniel Gropper", "given": "Daniel", "surname": "Gropper", "sex": "M", "birthDate": "05 DEC 1957", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F53@"], "fams": ["@F47@"], "facts": [{"type": "Fact 1", "place": "Patent Lawyer in Washington", "date": ""}, {"type": "Fact 2", "place": "Vienna VA, USA", "date": ""}]}, "@I12622904136@": {"id": "@I12622904136@", "name": "Daughter Gropper", "given": "Daughter", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F58@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Worked for \"Dimineatza\" paper.", "date": ""}]}, "@I12622904137@": {"id": "@I12622904137@", "name": "Eliahu Gropper", "given": "Eliahu", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "ABT 1907", "deathPlace": "", "famc": [], "fams": ["@F48@"], "facts": []}, "@I12622904138@": {"id": "@I12622904138@", "name": "Ellen-Sue Gropper", "given": "Ellen-Sue", "surname": "Gropper", "sex": "F", "birthDate": "1952", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F70@"], "fams": ["@F49@"], "facts": [{"type": "Fact 2", "place": "Hilton-Head SC, USA", "date": ""}]}, "@I12622904139@": {"id": "@I12622904139@", "name": "Erna Gropper", "given": "Erna", "surname": "Gropper", "sex": "F", "birthDate": "27 APR 1930", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F69@"], "fams": [], "facts": []}, "@I12622904140@": {"id": "@I12622904140@", "name": "Evan (Eliezer Simcha) Gropper", "given": "Evan (Eliezer Simcha)", "surname": "Gropper", "sex": "M", "birthDate": "21 OCT 1992", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F42@"], "fams": ["@F9@"], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904141@": {"id": "@I12622904141@", "name": "Eve Gropper", "given": "Eve", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F29@"], "fams": ["@F50@"], "facts": []}, "@I12622904142@": {"id": "@I12622904142@", "name": "Feige Gropper", "given": "Feige", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F63@"], "fams": ["@F51@"], "facts": []}, "@I12622904143@": {"id": "@I12622904143@", "name": "Gary Gropper", "given": "Gary", "surname": "Gropper", "sex": "M", "birthDate": "07 SEP 1958", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F100@"], "fams": ["@F52@"], "facts": [{"type": "Fact 1", "place": "Textile Engineer", "date": ""}]}, "@I12622904144@": {"id": "@I12622904144@", "name": "George Gropper", "given": "George", "surname": "Gropper", "sex": "M", "birthDate": "17 DEC 1925", "birthPlace": "Brooklyn NY, USA", "deathDate": "", "deathPlace": "", "famc": ["@F46@"], "fams": ["@F53@"], "facts": [{"type": "Fact 2", "place": "Ocean Side, L.Island, USA", "date": ""}]}, "@I12622904145@": {"id": "@I12622904145@", "name": "Geraldine (Gerry) Gropper", "given": "Geraldine (Gerry)", "surname": "Gropper", "sex": "F", "birthDate": "1916", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F45@"], "fams": ["@F18@"], "facts": [{"type": "Fact 2", "place": "New York NY, USA", "date": ""}]}, "@I12622904146@": {"id": "@I12622904146@", "name": "Gisela Gropper", "given": "Gisela", "surname": "Gropper", "sex": "F", "birthDate": "ABT 1850", "birthPlace": "", "deathDate": "ABT 1949", "deathPlace": "USA", "famc": ["@F62@"], "fams": ["@F54@"], "facts": [{"type": "Fact 4", "place": "Moved to USA abt. 1903", "date": ""}]}, "@I12622904147@": {"id": "@I12622904147@", "name": "Gisela Gropper", "given": "Gisela", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F93@"], "fams": ["@F55@"], "facts": [{"type": "Fact 4", "place": "Moved to Genova, Italy 1948", "date": ""}]}, "@I12622904148@": {"id": "@I12622904148@", "name": "Golda Ditza Gropper", "given": "Golda Ditza", "surname": "Gropper", "sex": "F", "birthDate": "07 AUG 1927", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F69@"], "fams": ["@F56@"], "facts": []}, "@I12622904149@": {"id": "@I12622904149@", "name": "Gregory Gropper", "given": "Gregory", "surname": "Gropper", "sex": "M", "birthDate": "17 MAY 1968", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F30@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Works w. parents", "date": ""}]}, "@I12622904150@": {"id": "@I12622904150@", "name": "Halona Gropper", "given": "Halona", "surname": "Gropper", "sex": "F", "birthDate": "1977", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F67@"], "fams": [], "facts": []}, "@I12622904151@": {"id": "@I12622904151@", "name": "Harry Gropper", "given": "Harry", "surname": "Gropper", "sex": "M", "birthDate": "1887", "birthPlace": "n.Botoshani, Romania", "deathDate": "DEC 1960", "deathPlace": "USA", "famc": ["@F93@"], "fams": ["@F46@"], "facts": [{"type": "Fact 1", "place": "Knitter, salesman.", "date": ""}, {"type": "Fact 4", "place": "Moved to USA 1907", "date": ""}]}, "@I12622904152@": {"id": "@I12622904152@", "name": "Ion Gropper", "given": "Ion", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F64@"], "fams": [], "facts": []}, "@I12622904153@": {"id": "@I12622904153@", "name": "Ionas Gropper", "given": "Ionas", "surname": "Gropper", "sex": "M", "birthDate": "1883", "birthPlace": "", "deathDate": "1946", "deathPlace": "", "famc": ["@F93@"], "fams": ["@F58@", "@F57@"], "facts": [{"type": "Fact 1", "place": "Bookkeeper, Insur. Agent", "date": ""}, {"type": "Fact 2", "place": "Lived in Botoshani & Bucurest, Romania", "date": ""}]}, "@I12622904154@": {"id": "@I12622904154@", "name": "Isaac Gropper", "given": "Isaac", "surname": "Gropper", "sex": "M", "birthDate": "1891", "birthPlace": "n.Dorohoi, Moldova", "deathDate": "1971", "deathPlace": "Florida, USA", "famc": ["@F93@"], "fams": ["@F59@"], "facts": [{"type": "Fact 1", "place": "General Mngr., Knitter", "date": ""}, {"type": "Fact 4", "place": "Moved to N.Y.C., USA", "date": ""}]}, "@I12622904155@": {"id": "@I12622904155@", "name": "Isidore Gropper", "given": "Isidore", "surname": "Gropper", "sex": "M", "birthDate": "1913", "birthPlace": "n.Botoshani, Romania", "deathDate": "", "deathPlace": "", "famc": ["@F57@"], "fams": ["@F60@", "@F61@"], "facts": [{"type": "Fact 1", "place": "Wholesaler", "date": ""}, {"type": "Fact 2", "place": "Lived in Botoshani & Bucurest, Romania", "date": ""}, {"type": "Fact 3", "place": "Also lived w. non-Jew. housekeeper", "date": ""}, {"type": "Fact 4", "place": "Italy 47, Uruguay 48, Argentina 50", "date": ""}]}, "@I12622904156@": {"id": "@I12622904156@", "name": "Israel Gropper", "given": "Israel", "surname": "Gropper", "sex": "M", "birthDate": "ABT 1825", "birthPlace": "Talpa, Moldova", "deathDate": "ABT 1900", "deathPlace": "", "famc": ["@F72@"], "fams": ["@F62@", "@F63@"], "facts": [{"type": "Fact 1", "place": "Farm Administrator", "date": ""}]}, "@I12622904157@": {"id": "@I12622904157@", "name": "Israel Gropper", "given": "Israel", "surname": "Gropper", "sex": "M", "birthDate": "AFT 1902", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F41@"], "fams": ["@F64@"], "facts": [{"type": "Fact 4", "place": "Moved to Israel 1950", "date": ""}]}, "@I12622904158@": {"id": "@I12622904158@", "name": "Ita Gropper", "given": "Ita", "surname": "Gropper", "sex": "F", "birthDate": "BET 1853 AND 1854", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F62@"], "fams": ["@F48@"], "facts": [{"type": "Fact 4", "place": "Moved to USA 1909", "date": ""}]}, "@I12622904159@": {"id": "@I12622904159@", "name": "Jeanne Gropper", "given": "Jeanne", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F20@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Died young.", "date": ""}]}, "@I12622904160@": {"id": "@I12622904160@", "name": "Jeffrey Gropper", "given": "Jeffrey", "surname": "Gropper", "sex": "M", "birthDate": "11 JUN 1961", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F30@"], "fams": ["@F15@"], "facts": [{"type": "Fact 1", "place": "Medical Doctor", "date": ""}, {"type": "Fact 2", "place": "Long Island, USA", "date": ""}]}, "@I12622904161@": {"id": "@I12622904161@", "name": "Jordan Gropper", "given": "Jordan", "surname": "Gropper", "sex": "M", "birthDate": "19 OCT 1991", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F15@"], "fams": [], "facts": []}, "@I12622904162@": {"id": "@I12622904162@", "name": "Josh Gropper", "given": "Josh", "surname": "Gropper", "sex": "M", "birthDate": "15 FEB 1992", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F43@"], "fams": [], "facts": []}, "@I12622904163@": {"id": "@I12622904163@", "name": "Juan Gropper", "given": "Juan", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F68@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Argentina", "date": ""}]}, "@I12622904164@": {"id": "@I12622904164@", "name": "Judith Gropper", "given": "Judith", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "AFT 1960", "deathPlace": "", "famc": ["@F18@"], "fams": ["@F17@"], "facts": []}, "@I12622904165@": {"id": "@I12622904165@", "name": "Karen Gropper", "given": "Karen", "surname": "Gropper", "sex": "F", "birthDate": "01 OCT 1960", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F100@"], "fams": [], "facts": []}, "@I12622904166@": {"id": "@I12622904166@", "name": "Leon Gropper", "given": "Leon", "surname": "Gropper", "sex": "M", "birthDate": "29 APR 1900", "birthPlace": "Plopeni, Judetsul Dorochoi, Romania", "deathDate": "", "deathPlace": "", "famc": ["@F93@"], "fams": ["@F18@"], "facts": [{"type": "Fact 1", "place": "Knitting Businessman", "date": ""}, {"type": "Fact 2", "place": "New York NY, USA", "date": ""}, {"type": "Fact 4", "place": "Moved to USA 1920", "date": ""}]}, "@I12622904167@": {"id": "@I12622904167@", "name": "Leon Gropper", "given": "Leon", "surname": "Gropper", "sex": "M", "birthDate": "1916", "birthPlace": "n.Botoshani, Romania", "deathDate": "", "deathPlace": "", "famc": ["@F57@"], "fams": ["@F19@"], "facts": [{"type": "Fact 1", "place": "Storeowner", "date": ""}, {"type": "Fact 2", "place": "Lived in Botoshani & Bucurest, Romania", "date": ""}, {"type": "Fact 4", "place": "Moved to Italy 48, B.A. Argentina 50", "date": ""}]}, "@I12622904168@": {"id": "@I12622904168@", "name": "Leon Gropper", "given": "Leon", "surname": "Gropper", "sex": "M", "birthDate": "1918", "birthPlace": "Brooklyn NY, USA", "deathDate": "", "deathPlace": "", "famc": ["@F46@"], "fams": ["@F20@"], "facts": [{"type": "Fact 1", "place": "Accountant.", "date": ""}, {"type": "Fact 2", "place": "Flushing NY, USA", "date": ""}]}, "@I12622904169@": {"id": "@I12622904169@", "name": "Leon Gropper", "given": "Leon", "surname": "Gropper", "sex": "M", "birthDate": "24 DEC 1928", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F69@"], "fams": [], "facts": []}, "@I12622904171@": {"id": "@I12622904171@", "name": "Lucinda? Gropper", "given": "Lucinda?", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "Argentina", "deathDate": "", "deathPlace": "", "famc": ["@F19@"], "fams": ["@F22@"], "facts": [{"type": "Fact 2", "place": "Now in Florida?", "date": ""}]}, "@I12622904172@": {"id": "@I12622904172@", "name": "Lupu Gropper", "given": "Lupu", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F41@"], "fams": ["@F23@", "@F24@"], "facts": [{"type": "Fact 4", "place": "Moved to Israel 1951", "date": ""}]}, "@I12622904173@": {"id": "@I12622904173@", "name": "Marcel Gropper", "given": "Marcel", "surname": "Gropper", "sex": "M", "birthDate": "09 NOV 1921", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F69@"], "fams": ["@F25@"], "facts": []}, "@I12622904174@": {"id": "@I12622904174@", "name": "Martin Gropper", "given": "Martin", "surname": "Gropper", "sex": "M", "birthDate": "17 SEP 1955", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F53@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Accountant.", "date": ""}, {"type": "Fact 2", "place": "Baldwin, L.Island, USA", "date": ""}]}, "@I12622904175@": {"id": "@I12622904175@", "name": "Meier Gropper", "given": "Meier", "surname": "Gropper", "sex": "M", "birthDate": "06 SEP 1888", "birthPlace": "Hudesti, Dorohoi", "deathDate": "23 AUG 1957", "deathPlace": "Toronto ON, Canada", "famc": ["@F93@"], "fams": ["@F27@"], "facts": [{"type": "Fact 1", "place": "Estate Administrator, Toy Fact. Owner", "date": ""}, {"type": "Fact 2", "place": "Lived in Botoshani, USA, again Botoshani.", "date": ""}, {"type": "Fact 3", "place": "Married to 1-st cousin", "date": ""}, {"type": "Fact 4", "place": "Moved to USA 1920, Israel 1951, Canada", "date": ""}]}, "@I12622904176@": {"id": "@I12622904176@", "name": "Moishe Gropper", "given": "Moishe", "surname": "Gropper", "sex": "M", "birthDate": "1882", "birthPlace": "Romania", "deathDate": "1950", "deathPlace": "USA", "famc": ["@F48@"], "fams": ["@F28@"], "facts": [{"type": "Fact 1", "place": "Chicken Farmer", "date": ""}, {"type": "Fact 2", "place": "Lived in Woodrige NY, USA", "date": ""}, {"type": "Fact 4", "place": "Moved to USA 1910", "date": ""}]}, "@I12622904177@": {"id": "@I12622904177@", "name": "Moritz Gropper", "given": "Moritz", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F41@"], "fams": ["@F29@"], "facts": []}, "@I12622904178@": {"id": "@I12622904178@", "name": "Morton Gropper", "given": "Morton", "surname": "Gropper", "sex": "M", "birthDate": "10 NOV 1936", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F59@"], "fams": ["@F30@"], "facts": [{"type": "Fact 1", "place": "Textile Engineer, Food Busin.Owner", "date": ""}, {"type": "Fact 2", "place": "Manhattan, NY, USA", "date": ""}]}, "@I12622904179@": {"id": "@I12622904179@", "name": "Myra Gropper", "given": "Myra", "surname": "Gropper", "sex": "F", "birthDate": "07 MAY 1960", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F21@"], "fams": ["@F31@"], "facts": [{"type": "Fact 1", "place": "Teacher", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904180@": {"id": "@I12622904180@", "name": "Nathan Gropper", "given": "Nathan", "surname": "Gropper", "sex": "M", "birthDate": "1913", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F45@"], "fams": ["@F32@"], "facts": [{"type": "Fact 4", "place": "Retired in Tampa, Florida USA", "date": ""}]}, "@I12622904181@": {"id": "@I12622904181@", "name": "Noah Gropper", "given": "Noah", "surname": "Gropper", "sex": "M", "birthDate": "4 Apr 1995", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F42@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Child", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904182@": {"id": "@I12622904182@", "name": "Otilia Gropper", "given": "Otilia", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F29@"], "fams": ["@F33@"], "facts": []}, "@I12622904183@": {"id": "@I12622904183@", "name": "Pearl Gropper", "given": "Pearl", "surname": "Gropper", "sex": "F", "birthDate": "03 NOV 1966", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F21@"], "fams": ["@F34@"], "facts": [{"type": "Fact 1", "place": "Social Worker", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904184@": {"id": "@I12622904184@", "name": "Perry Gropper", "given": "Perry", "surname": "Gropper", "sex": "F", "birthDate": "19 JUN 1963", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F100@"], "fams": [], "facts": []}, "@I12622904185@": {"id": "@I12622904185@", "name": "Peter Gropper", "given": "Peter", "surname": "Gropper", "sex": "M", "birthDate": "16 APR 1944", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F32@"], "fams": ["@F35@", "@F36@"], "facts": [{"type": "Fact 1", "place": "Garage Owner", "date": ""}, {"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}]}, "@I12622904186@": {"id": "@I12622904186@", "name": "Rachel Gropper", "given": "Rachel", "surname": "Gropper", "sex": "F", "birthDate": "27 NOV 1986", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F36@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}]}, "@I12622904187@": {"id": "@I12622904187@", "name": "Rebecca Gropper", "given": "Rebecca", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F19@"], "fams": ["@F37@"], "facts": [{"type": "Fact 2", "place": "Now in Florida?", "date": ""}, {"type": "Fact 4", "place": "Moved to B.A., Argentina", "date": ""}]}, "@I12622904188@": {"id": "@I12622904188@", "name": "Rebecca Gropper", "given": "Rebecca", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F38@"], "facts": [{"type": "Fact 3", "place": "3-rd Wife", "date": ""}]}, "@I12622904189@": {"id": "@I12622904189@", "name": "Rebecca Gropper", "given": "Rebecca", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F41@"], "fams": ["@F39@"], "facts": [{"type": "Fact 2", "place": "Lived in Bucurest, Romania", "date": ""}]}, "@I12622904190@": {"id": "@I12622904190@", "name": "Rebeccah Gropper", "given": "Rebeccah", "surname": "Gropper", "sex": "F", "birthDate": "03 JUN 1982", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F36@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}]}, "@I12622904191@": {"id": "@I12622904191@", "name": "Richard Gropper", "given": "Richard", "surname": "Gropper", "sex": "M", "birthDate": "27 OCT 1989", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F47@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Vienna VA, USA", "date": ""}]}, "@I12622904192@": {"id": "@I12622904192@", "name": "Robert Gropper", "given": "Robert", "surname": "Gropper", "sex": "M", "birthDate": "1950", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F70@"], "fams": ["@F67@"], "facts": [{"type": "Fact 1", "place": "Economist", "date": ""}, {"type": "Fact 2", "place": "New York NY, USA", "date": ""}]}, "@I12622904193@": {"id": "@I12622904193@", "name": "Ronnie Gropper", "given": "Ronnie", "surname": "Gropper", "sex": "M", "birthDate": "29 AUG 1965", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F35@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}]}, "@I12622904194@": {"id": "@I12622904194@", "name": "Sanders W. Gropper", "given": "Sanders W.", "surname": "Gropper", "sex": "M", "birthDate": "29 NOV 1932", "birthPlace": "New York", "deathDate": "2022", "deathPlace": "Miami Beach, Miami-Dade, Florida, USA", "famc": ["@F59@"], "fams": ["@F100@"], "facts": [{"type": "Fact 1", "place": "Textile Engineer", "date": ""}]}, "@I12622904195@": {"id": "@I12622904195@", "name": "Simon Zev (Lupu) Gropper", "given": "Simon Zev (Lupu)", "surname": "Gropper", "sex": "M", "birthDate": "1856", "birthPlace": "Near Dorohoi, Moldova", "deathDate": "SEP 1931", "deathPlace": "", "famc": ["@F63@"], "fams": ["@F93@"], "facts": [{"type": "Fact 1", "place": "Farm Administrator", "date": ""}, {"type": "Fact 4", "place": "Moved to Botoshani, Romania", "date": ""}]}, "@I12622904196@": {"id": "@I12622904196@", "name": "Stephanie Gropper", "given": "Stephanie", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F52@"], "fams": [], "facts": []}, "@I12622904197@": {"id": "@I12622904197@", "name": "Twin Child Gropper", "given": "Twin Child", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F46@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Died early.", "date": ""}]}, "@I12622904198@": {"id": "@I12622904198@", "name": "Twin Child Gropper", "given": "Twin Child", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F46@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Died early.", "date": ""}]}, "@I12622904199@": {"id": "@I12622904199@", "name": "Yetti Gropper", "given": "Yetti", "surname": "Gropper", "sex": "F", "birthDate": "1891", "birthPlace": "Dorohoi, Romania", "deathDate": "1966", "deathPlace": "", "famc": ["@F93@"], "fams": ["@F88@"], "facts": []}, "@I12622904200@": {"id": "@I12622904200@", "name": "Yetti Gropper", "given": "Yetti", "surname": "Gropper", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "BEF 1940", "deathPlace": "", "famc": ["@F41@"], "fams": ["@F83@"], "facts": [{"type": "Fact 3", "place": "Died young.", "date": ""}]}, "@I12622904201@": {"id": "@I12622904201@", "name": "Zachary Gropper", "given": "Zachary", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F52@"], "fams": [], "facts": []}, "@I12622904202@": {"id": "@I12622904202@", "name": "Gussie", "given": "", "surname": "Gussie", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F78@"], "fams": ["@F66@"], "facts": []}, "@I12622904203@": {"id": "@I12622904203@", "name": "Barry Haimovici", "given": "Barry", "surname": "Haimovici", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F81@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Playwriter", "date": ""}]}, "@I12622904204@": {"id": "@I12622904204@", "name": "Donna Haimovici", "given": "Donna", "surname": "Haimovici", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F81@"], "fams": [], "facts": []}, "@I12622904205@": {"id": "@I12622904205@", "name": "Harvey Haimovici", "given": "Harvey", "surname": "Haimovici", "sex": "M", "birthDate": "ABT 1952", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F101@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Shares office w. father", "date": ""}]}, "@I12622904206@": {"id": "@I12622904206@", "name": "Hyman Haimovici", "given": "Hyman", "surname": "Haimovici", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F95@"], "facts": [{"type": "Fact 1", "place": "Hotel Owner in Catskill", "date": ""}]}, "@I12622904207@": {"id": "@I12622904207@", "name": "Jack Haimovici", "given": "Jack", "surname": "Haimovici", "sex": "M", "birthDate": "1916", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F95@"], "fams": ["@F81@"], "facts": [{"type": "Fact 1", "place": "Plumber", "date": ""}]}, "@I12622904208@": {"id": "@I12622904208@", "name": "Jeffrey Haimovici", "given": "Jeffrey", "surname": "Haimovici", "sex": "M", "birthDate": "ABT 1954", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F101@"], "fams": [], "facts": []}, "@I12622904209@": {"id": "@I12622904209@", "name": "Jerome Haimovici", "given": "Jerome", "surname": "Haimovici", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F95@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Killed at 51 in car accident", "date": ""}]}, "@I12622904210@": {"id": "@I12622904210@", "name": "Ricky Haimovici", "given": "Ricky", "surname": "Haimovici", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F81@"], "fams": ["@F101@"], "facts": [{"type": "Fact 1", "place": "MD Pediatrician", "date": ""}, {"type": "Fact 2", "place": "Beverly Hills Ca, USA", "date": ""}]}, "@I12622904211@": {"id": "@I12622904211@", "name": "Sam Haimovici", "given": "Sam", "surname": "Haimovici", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F95@"], "fams": [], "facts": []}, "@I12622904212@": {"id": "@I12622904212@", "name": "Steven Haimovici", "given": "Steven", "surname": "Haimovici", "sex": "M", "birthDate": "ABT 1961", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F101@"], "fams": [], "facts": [{"type": "Fact 1", "place": "Bank clerk", "date": ""}]}, "@I12622904213@": {"id": "@I12622904213@", "name": "Israel", "given": "", "surname": "Israel", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F39@"], "facts": [{"type": "Fact 2", "place": "Lived in Buchurest, Romania", "date": ""}, {"type": "Fact 3", "place": "Cousin of Rebecca", "date": ""}]}, "@I12622904214@": {"id": "@I12622904214@", "name": "Jack", "given": "", "surname": "Jack", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F76@"], "fams": ["@F97@"], "facts": []}, "@I12622904215@": {"id": "@I12622904215@", "name": "Jacob", "given": "", "surname": "Jacob", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F54@"], "fams": ["@F75@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904216@": {"id": "@I12622904216@", "name": "Jane", "given": "", "surname": "Jane", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F35@"], "facts": [{"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}, {"type": "Fact 3", "place": "Divorced", "date": ""}]}, "@I12622904217@": {"id": "@I12622904217@", "name": "Mary Joe", "given": "Mary", "surname": "Joe", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F36@"], "facts": [{"type": "Fact 2", "place": "Charlottesville VA, USA", "date": ""}, {"type": "Fact 3", "place": "Sec. wife.", "date": ""}]}, "@I12622904218@": {"id": "@I12622904218@", "name": "Judy", "given": "", "surname": "Judy", "sex": "F", "birthDate": "01 APR 1963", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F43@"], "facts": []}, "@I12622904219@": {"id": "@I12622904219@", "name": "Julie", "given": "", "surname": "Julie", "sex": "F", "birthDate": "", "birthPlace": "California, USA", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F52@"], "facts": []}, "@I12622904220@": {"id": "@I12622904220@", "name": "Anna (Channa) Kimelman", "given": "Anna (Channa)", "surname": "Kimelman", "sex": "F", "birthDate": "30 NOV 1914", "birthPlace": "", "deathDate": "21 OCT 1986", "deathPlace": "Toronto ON, Canada", "famc": ["@F10@"], "fams": ["@F106@"], "facts": []}, "@I12622904221@": {"id": "@I12622904221@", "name": "leon kimelman", "given": "leon", "surname": "kimelman", "sex": "M", "birthDate": "12 JUN 1904", "birthPlace": "", "deathDate": "17 AUG 1977", "deathPlace": "Toronto ON, Canada", "famc": [], "fams": ["@F106@"], "facts": []}, "@I12622904222@": {"id": "@I12622904222@", "name": "Ruth Gropper", "given": "Ruth", "surname": "Gropper", "sex": "F", "birthDate": "03 NOV 1937", "birthPlace": "Czernovitz, Romania", "deathDate": "", "deathPlace": "", "famc": ["@F106@"], "fams": ["@F21@"], "facts": [{"type": "Fact 1", "place": "Housewife", "date": ""}, {"type": "Fact 2", "place": "Toronto, ON, Canada", "date": ""}]}, "@I12622904223@": {"id": "@I12622904223@", "name": "Levenson", "given": "", "surname": "Levenson", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F51@"], "facts": []}, "@I12622904224@": {"id": "@I12622904224@", "name": "(Male child) Levenson", "given": "(Male child)", "surname": "Levenson", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F51@"], "fams": [], "facts": []}, "@I12622904225@": {"id": "@I12622904225@", "name": "Pauline Levenson", "given": "Pauline", "surname": "Levenson", "sex": "F", "birthDate": "08 SEP 1898", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F51@"], "fams": ["@F92@"], "facts": []}, "@I12622904226@": {"id": "@I12622904226@", "name": "Bob Levy", "given": "Bob", "surname": "Levy", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F86@"], "facts": [{"type": "Fact 1", "place": "Bank clerk", "date": ""}, {"type": "Fact 3", "place": "Separated 1950", "date": ""}]}, "@I12622904227@": {"id": "@I12622904227@", "name": "Shirley Lieberman", "given": "Shirley", "surname": "Lieberman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F100@"], "facts": []}, "@I12622904228@": {"id": "@I12622904228@", "name": "Edith Lipson", "given": "Edith", "surname": "Lipson", "sex": "F", "birthDate": "08 JUL 1930", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F91@"], "facts": []}, "@I12622904229@": {"id": "@I12622904229@", "name": "Louis", "given": "", "surname": "Louis", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F54@"], "fams": ["@F76@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904230@": {"id": "@I12622904230@", "name": "Arno Lucacer", "given": "Arno", "surname": "Lucacer", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "ABT 1987", "deathPlace": "", "famc": [], "fams": ["@F87@"], "facts": [{"type": "Fact 2", "place": "Lived in Buchurest, Romania", "date": ""}, {"type": "Fact 3", "place": "Sec. husband.", "date": ""}]}, "@I12622904231@": {"id": "@I12622904231@", "name": "Martha", "given": "", "surname": "Martha", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F101@"], "facts": [{"type": "Fact 2", "place": "Beverly Hills Ca, USA", "date": ""}]}, "@I12622904232@": {"id": "@I12622904232@", "name": "Mary", "given": "", "surname": "Mary", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F78@"], "fams": ["@F98@"], "facts": []}, "@I12622904233@": {"id": "@I12622904233@", "name": "Tom Micciantuono", "given": "Tom", "surname": "Micciantuono", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F102@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904234@": {"id": "@I12622904234@", "name": "Pavel Moldovan", "given": "Pavel", "surname": "Moldovan", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F96@"], "facts": [{"type": "Fact 3", "place": "(Gentile)", "date": ""}]}, "@I12622904235@": {"id": "@I12622904235@", "name": "Pavel Moldovan", "given": "Pavel", "surname": "Moldovan", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F96@"], "fams": [], "facts": []}, "@I12622904236@": {"id": "@I12622904236@", "name": "Molly Moskovitz", "given": "Molly", "surname": "Moskovitz", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F70@"], "facts": []}, "@I12622904237@": {"id": "@I12622904237@", "name": "Murray", "given": "", "surname": "Murray", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F54@"], "fams": ["@F77@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904238@": {"id": "@I12622904238@", "name": "Nelly", "given": "", "surname": "Nelly", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F19@"], "facts": [{"type": "Fact 1", "place": "Coiffeuse", "date": ""}]}, "@I12622904239@": {"id": "@I12622904239@", "name": "Jody Newman", "given": "Jody", "surname": "Newman", "sex": "F", "birthDate": "27 JAN 1967", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F44@"], "fams": ["@F103@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904240@": {"id": "@I12622904240@", "name": "Marcy Newman", "given": "Marcy", "surname": "Newman", "sex": "F", "birthDate": "20 DEC 1965", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F44@"], "fams": ["@F102@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904241@": {"id": "@I12622904241@", "name": "Michael Newman", "given": "Michael", "surname": "Newman", "sex": "M", "birthDate": "21 SEP 1975", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F44@"], "fams": [], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904242@": {"id": "@I12622904242@", "name": "Sam Newman", "given": "Sam", "surname": "Newman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F44@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904243@": {"id": "@I12622904243@", "name": "Otilia", "given": "", "surname": "Otilia", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F64@"], "facts": [{"type": "Fact 4", "place": "Moved to Israel 1950", "date": ""}]}, "@I12622904244@": {"id": "@I12622904244@", "name": "Ranitzer", "given": "", "surname": "Ranitzer", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": [], "facts": []}, "@I12622904245@": {"id": "@I12622904245@", "name": "Rantzer", "given": "", "surname": "Rantzer", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F104@"], "facts": []}, "@I12622904246@": {"id": "@I12622904246@", "name": "Rifka-Rachel", "given": "", "surname": "Rifka-Rachel", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F105@"], "facts": []}, "@I12622904247@": {"id": "@I12622904247@", "name": "Rose", "given": "", "surname": "Rose", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F78@"], "fams": ["@F104@"], "facts": []}, "@I12622904248@": {"id": "@I12622904248@", "name": "Pearl Rosman", "given": "Pearl", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F108@"], "fams": ["@F94@"], "facts": []}, "@I12622904249@": {"id": "@I12622904249@", "name": "Sarah", "given": "", "surname": "Sarah", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F54@"], "fams": ["@F78@"], "facts": [{"type": "Fact 2", "place": "USA", "date": ""}]}, "@I12622904250@": {"id": "@I12622904250@", "name": "Scot Saslow", "given": "Scot", "surname": "Saslow", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F103@"], "facts": [{"type": "Fact 2", "place": "Huntington, L.Island, USA", "date": ""}]}, "@I12622904251@": {"id": "@I12622904251@", "name": "Gustav Schachter", "given": "Gustav", "surname": "Schachter", "sex": "M", "birthDate": "MAY 1926", "birthPlace": "", "deathDate": "14 may 2024", "deathPlace": "Boston, Suffolk, Massachusetts, USA", "famc": ["@F55@"], "fams": [], "facts": []}, "@I12622904252@": {"id": "@I12622904252@", "name": "Harry Hersh-Velvel Schachter", "given": "Harry Hersh-Velvel", "surname": "Schachter", "sex": "M", "birthDate": "01 JAN 1922", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F55@"], "fams": [], "facts": []}, "@I12622904253@": {"id": "@I12622904253@", "name": "Hersh Schachter", "given": "Hersh", "surname": "Schachter", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F105@"], "facts": []}, "@I12622904254@": {"id": "@I12622904254@", "name": "Levy Itzack Herman Schachter", "given": "Levy Itzack Herman", "surname": "Schachter", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F105@"], "fams": ["@F55@"], "facts": [{"type": "Fact 1", "place": "Travelling Salesman", "date": ""}]}, "@I12622904255@": {"id": "@I12622904255@", "name": "Marcel Schachter", "given": "Marcel", "surname": "Schachter", "sex": "M", "birthDate": "18 OCT 1927", "birthPlace": "", "deathDate": "14 May 2024", "deathPlace": "Teaneck, Bergen, New Jersey, USA", "famc": ["@F55@"], "fams": [], "facts": []}, "@I12622904256@": {"id": "@I12622904256@", "name": "Mirel Schachter", "given": "Mirel", "surname": "Schachter", "sex": "F", "birthDate": "27 SEP 1930", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F55@"], "fams": [], "facts": []}, "@I12622904257@": {"id": "@I12622904257@", "name": "Shelly Rifca-Rachel Schachter", "given": "Shelly Rifca-Rachel", "surname": "Schachter", "sex": "F", "birthDate": "12 DEC 1923", "birthPlace": "", "deathDate": "24 JAN 1937", "deathPlace": "", "famc": ["@F55@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Died of Kidney", "date": ""}]}, "@I12622904258@": {"id": "@I12622904258@", "name": "Schwartz", "given": "", "surname": "Schwartz", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F89@"], "facts": [{"type": "Fact 4", "place": "Moved to USA abt. 1913", "date": ""}]}, "@I12622904259@": {"id": "@I12622904259@", "name": "Alexandra Schwartz", "given": "Alexandra", "surname": "Schwartz", "sex": "F", "birthDate": "08 NOV 1962", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F91@"], "fams": [], "facts": []}, "@I12622904260@": {"id": "@I12622904260@", "name": "Herbert Schwartz", "given": "Herbert", "surname": "Schwartz", "sex": "M", "birthDate": "14 MAR 1926", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F92@"], "fams": ["@F91@"], "facts": []}, "@I12622904261@": {"id": "@I12622904261@", "name": "Larry Schwartz", "given": "Larry", "surname": "Schwartz", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F89@"], "fams": [], "facts": [{"type": "Fact 2", "place": "California, USA", "date": ""}]}, "@I12622904262@": {"id": "@I12622904262@", "name": "Pearl Schwartz", "given": "Pearl", "surname": "Schwartz", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F89@"], "fams": [], "facts": [{"type": "Fact 3", "place": "Deceased", "date": ""}]}, "@I12622904263@": {"id": "@I12622904263@", "name": "Samuel Schwartz", "given": "Samuel", "surname": "Schwartz", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F92@"], "facts": []}, "@I12622904264@": {"id": "@I12622904264@", "name": "Shirley Schwartz", "given": "Shirley", "surname": "Schwartz", "sex": "F", "birthDate": "27 MAY 1922", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F92@"], "fams": ["@F65@"], "facts": []}, "@I12622904265@": {"id": "@I12622904265@", "name": "Bertha Segal", "given": "Bertha", "surname": "Segal", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F71@"], "fams": ["@F89@"], "facts": []}, "@I12622904266@": {"id": "@I12622904266@", "name": "Erna Segal", "given": "Erna", "surname": "Segal", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F94@"], "fams": [], "facts": []}, "@I12622904267@": {"id": "@I12622904267@", "name": "Gisela Segal", "given": "Gisela", "surname": "Segal", "sex": "F", "birthDate": "11 OCT 1892", "birthPlace": "Botosani, Romania", "deathDate": "04 SEP 1982", "deathPlace": "toronto-canada", "famc": ["@F94@"], "fams": ["@F27@"], "facts": [{"type": "Fact 1", "place": "Toy factory owner.", "date": ""}, {"type": "Fact 2", "place": "Lived in Botoshani, Romania", "date": ""}, {"type": "Fact 3", "place": "Married on Meyer's visit to Rom.", "date": ""}, {"type": "Fact 4", "place": "Moved to Israel 1951, Canada", "date": ""}]}, "@I12622904268@": {"id": "@I12622904268@", "name": "Golda Segal", "given": "Golda", "surname": "Segal", "sex": "F", "birthDate": "1863", "birthPlace": "", "deathDate": "FEB 1924", "deathPlace": "Botoshani, Romania", "famc": ["@F79@"], "fams": ["@F93@"], "facts": []}, "@I12622904269@": {"id": "@I12622904269@", "name": "Israel Segal", "given": "Israel", "surname": "Segal", "sex": "M", "birthDate": "1902", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F71@"], "fams": ["@F73@", "@F74@", "@F38@"], "facts": [{"type": "Fact 1", "place": "Lumber Dealer", "date": ""}, {"type": "Fact 4", "place": "Moved to Israel 1951, Italy, Romania 1955", "date": ""}]}, "@I12622904270@": {"id": "@I12622904270@", "name": "Itic Segal", "given": "Itic", "surname": "Segal", "sex": "M", "birthDate": "1865", "birthPlace": "Botosani, Romania", "deathDate": "27 OCT 1949", "deathPlace": "Botosani, Romania", "famc": [], "fams": ["@F94@"], "facts": []}, "@I12622904271@": {"id": "@I12622904271@", "name": "Leib Segal", "given": "Leib", "surname": "Segal", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F79@"], "facts": [{"type": "Fact 4", "place": "Moved to Eretz, Palestine 1889", "date": ""}]}, "@I12622904272@": {"id": "@I12622904272@", "name": "Leon Segal", "given": "Leon", "surname": "Segal", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F94@"], "fams": [], "facts": []}, "@I12622904273@": {"id": "@I12622904273@", "name": "Myra Segal", "given": "Myra", "surname": "Segal", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F23@"], "facts": [{"type": "Fact 3", "place": "Lupu's cousin", "date": ""}, {"type": "Fact 4", "place": "Moved to Israel 1951", "date": ""}]}, "@I12622904274@": {"id": "@I12622904274@", "name": "Shlomo Segal", "given": "Shlomo", "surname": "Segal", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F71@"], "facts": [{"type": "Fact 2", "place": "Lived in Hertza, Dorohoi, Romania", "date": ""}]}, "@I12622904275@": {"id": "@I12622904275@", "name": "Sophie Segal", "given": "Sophie", "surname": "Segal", "sex": "F", "birthDate": "1893", "birthPlace": "", "deathDate": "1955", "deathPlace": "", "famc": ["@F71@"], "fams": ["@F95@"], "facts": [{"type": "Fact 1", "place": "Hotel Owner in Catskill", "date": ""}, {"type": "Fact 4", "place": "Moved to USA abt. 1913", "date": ""}]}, "@I12622904276@": {"id": "@I12622904276@", "name": "Yetti Segal", "given": "Yetti", "surname": "Segal", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F71@"], "fams": ["@F96@"], "facts": []}, "@I12622904277@": {"id": "@I12622904277@", "name": "Clara (Tutzi) Shapiro", "given": "Clara (Tutzi)", "surname": "Shapiro", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F28@"], "facts": [{"type": "Fact 3", "place": "No children", "date": ""}]}, "@I12622904278@": {"id": "@I12622904278@", "name": "Shirley", "given": "", "surname": "Shirley", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F97@"], "facts": []}, "@I12622904279@": {"id": "@I12622904279@", "name": "Smillen", "given": "", "surname": "Smillen", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F98@"], "facts": []}, "@I12622904280@": {"id": "@I12622904280@", "name": "Son", "given": "", "surname": "Son", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F110@"], "fams": [], "facts": []}, "@I12622904281@": {"id": "@I12622904281@", "name": "Son", "given": "", "surname": "Son", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F110@"], "fams": [], "facts": []}, "@I12622904282@": {"id": "@I12622904282@", "name": "Sonia", "given": "", "surname": "Sonia", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F84@", "@F60@"], "facts": [{"type": "Fact 2", "place": "Lived in Buenos Aires, Argentina", "date": ""}, {"type": "Fact 3", "place": "Sec. wife, former devorcee", "date": ""}]}, "@I12622904283@": {"id": "@I12622904283@", "name": "Son of Sonia", "given": "Son of", "surname": "Sonia", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F84@"], "fams": ["@F22@"], "facts": [{"type": "Fact 3", "place": "Son of Isidore's sec. wife", "date": ""}]}, "@I12622904284@": {"id": "@I12622904284@", "name": "Claire Sregler", "given": "Claire", "surname": "Sregler", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F59@"], "facts": [{"type": "Fact 2", "place": "Long Beach, USA", "date": ""}]}, "@I12622904285@": {"id": "@I12622904285@", "name": "Elise Stern", "given": "Elise", "surname": "Stern", "sex": "F", "birthDate": "17 NOV 1963", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F42@"], "facts": [{"type": "Fact 1", "place": "Lawyer", "date": ""}, {"type": "Fact 2", "place": "Toronto ON, Canada", "date": ""}]}, "@I12622904286@": {"id": "@I12622904286@", "name": "Tilly", "given": "", "surname": "Tilly", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F24@"], "facts": [{"type": "Fact 3", "place": "First wife.  Died.", "date": ""}]}, "@I12622904287@": {"id": "@I12622904287@", "name": "Ernestina Tzinner", "given": "Ernestina", "surname": "Tzinner", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F110@"], "facts": []}, "@I12622904288@": {"id": "@I12622904288@", "name": "Rebecca Tzinner", "given": "Rebecca", "surname": "Tzinner", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F80@", "@F57@"], "facts": [{"type": "Fact 3", "place": "Divorced abt. 1929-30, returned to Ionas.", "date": ""}, {"type": "Fact 4", "place": "Moved to Botoshani, Romania", "date": ""}]}, "@I12622904289@": {"id": "@I12622904289@", "name": "Victoria", "given": "", "surname": "Victoria", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "1957", "deathPlace": "Buenos Aires, Argentina", "famc": [], "fams": ["@F61@"], "facts": [{"type": "Fact 2", "place": "Cousin of Isidore", "date": ""}, {"type": "Fact 3", "place": "Died of cancer.", "date": ""}, {"type": "Fact 4", "place": "Italy 47, Uruguay 48, Argentina 50", "date": ""}]}, "@I12622904290@": {"id": "@I12622904290@", "name": "Gail Wasserman", "given": "Gail", "surname": "Wasserman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F47@"], "facts": [{"type": "Fact 2", "place": "Vienna VA, USA", "date": ""}]}, "@I12622904291@": {"id": "@I12622904291@", "name": "Lisa Weiner", "given": "Lisa", "surname": "Weiner", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F58@"], "facts": [{"type": "Fact 3", "place": "Divorced in 1908", "date": ""}]}, "@I12622904292@": {"id": "@I12622904292@", "name": "Kenny Yablon", "given": "Kenny", "surname": "Yablon", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F17@"], "facts": []}, "@I12622904293@": {"id": "@I12622904293@", "name": "Yente-Sara", "given": "", "surname": "Yente-Sara", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "ABT 1899", "deathPlace": "", "famc": [], "fams": ["@F63@"], "facts": []}, "@I12622904294@": {"id": "@I12622904294@", "name": "Ernestine Esterica Zalzberger", "given": "Ernestine Esterica", "surname": "Zalzberger", "sex": "F", "birthDate": "25 APR 1914", "birthPlace": "", "deathDate": "1986", "deathPlace": "", "famc": ["@F88@"], "fams": ["@F86@", "@F87@"], "facts": [{"type": "Fact 1", "place": "Studied in Viena, Austria", "date": ""}, {"type": "Fact 2", "place": "Lived in Buchurest, Romania", "date": ""}]}, "@I12622904295@": {"id": "@I12622904295@", "name": "Samuel Zalzberger", "given": "Samuel", "surname": "Zalzberger", "sex": "M", "birthDate": "", "birthPlace": "Borduieni, Romania", "deathDate": "1952", "deathPlace": "", "famc": [], "fams": ["@F88@"], "facts": [{"type": "Fact 1", "place": "Hardware Store Clerk, Ceramic Busin.", "date": ""}]}, "@I250038962699@": {"id": "@I250038962699@", "name": "Bertha (beila) shafer (schlomiuk)", "given": "Bertha (beila)", "surname": "shafer (schlomiuk)", "sex": "F", "birthDate": "--1877", "birthPlace": "Banilla Ruska, Chernivtsi, Ukraine", "deathDate": "--1961", "deathPlace": "Toronto ON, Canada", "famc": [], "fams": ["@F10@"], "facts": []}, "@I250038962973@": {"id": "@I250038962973@", "name": "Joseph (yosil) Shafer", "given": "Joseph (yosil)", "surname": "Shafer", "sex": "M", "birthDate": "--1873", "birthPlace": "Galicia, Poland", "deathDate": "--1941", "deathPlace": "Banilla Ruska, Chernivtsi, Ukraine", "famc": [], "fams": ["@F10@"], "facts": []}, "@I250148399156@": {"id": "@I250148399156@", "name": "Johan Rosman", "given": "Johan", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F108@"], "facts": []}, "@I250148403811@": {"id": "@I250148403811@", "name": "Bercu Rosman", "given": "Bercu", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F108@"], "fams": ["@F4@"], "facts": []}, "@I250148405204@": {"id": "@I250148405204@", "name": "Soil Rosman", "given": "Soil", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F108@"], "fams": ["@F13@"], "facts": []}, "@I250148406807@": {"id": "@I250148406807@", "name": "Smuel Rosman", "given": "Smuel", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F108@"], "fams": ["@F112@"], "facts": []}, "@I250148407498@": {"id": "@I250148407498@", "name": "Abraham Rosman", "given": "Abraham", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F108@"], "fams": ["@F107@"], "facts": []}, "@I250148411398@": {"id": "@I250148411398@", "name": "Malvena ", "given": "Malvena", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F4@"], "facts": []}, "@I250148412645@": {"id": "@I250148412645@", "name": "Suzy Rosman", "given": "Suzy", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F4@"], "fams": [], "facts": []}, "@I250148414056@": {"id": "@I250148414056@", "name": "Marci Rosman", "given": "Marci", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F4@"], "fams": [], "facts": []}, "@I250148415171@": {"id": "@I250148415171@", "name": "Ettiy Rosman", "given": "Ettiy", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F4@"], "fams": ["@F14@"], "facts": []}, "@I250148415938@": {"id": "@I250148415938@", "name": "Segal ", "given": "Segal", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F14@"], "facts": []}, "@I250148417381@": {"id": "@I250148417381@", "name": "Johanan Rosman", "given": "Johanan", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F4@"], "fams": [], "facts": []}, "@I250148418708@": {"id": "@I250148418708@", "name": "Laura ", "given": "Laura", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F13@"], "facts": []}, "@I250148419743@": {"id": "@I250148419743@", "name": "Dolphy Rosman", "given": "Dolphy", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F13@"], "fams": [], "facts": []}, "@I250148420160@": {"id": "@I250148420160@", "name": "Iancu Rosman", "given": "Iancu", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F13@"], "fams": [], "facts": []}, "@I250148421034@": {"id": "@I250148421034@", "name": "Etty Rosman", "given": "Etty", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F13@"], "fams": [], "facts": []}, "@I250148423428@": {"id": "@I250148423428@", "name": "Fany Rosman", "given": "Fany", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F13@"], "fams": [], "facts": []}, "@I250148425416@": {"id": "@I250148425416@", "name": "Clara Rosman", "given": "Clara", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F107@"], "fams": [], "facts": []}, "@I250148426802@": {"id": "@I250148426802@", "name": "Iancu Rosman", "given": "Iancu", "surname": "Rosman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F107@"], "fams": [], "facts": []}, "@I250148428201@": {"id": "@I250148428201@", "name": "Iancu Rosman", "given": "Iancu", "surname": "Rosman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F112@"], "fams": [], "facts": []}, "@I250148443257@": {"id": "@I250148443257@", "name": "Michael Wolkowicz", "given": "Michael", "surname": "Wolkowicz", "sex": "M", "birthDate": "9 Feb 1985", "birthPlace": "Montreal, Quebec, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F109@"], "fams": ["@F5@"], "facts": []}, "@I250158658794@": {"id": "@I250158658794@", "name": "Alex Berman", "given": "Alex", "surname": "Berman", "sex": "M", "birthDate": "15 Apr 1924", "birthPlace": "Winnipeg MN, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F90@"], "fams": ["@F8@"], "facts": []}, "@I250158658842@": {"id": "@I250158658842@", "name": "Valli Jean Portnuff", "given": "Valli Jean", "surname": "Portnuff", "sex": "F", "birthDate": "24 Jul 1928", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F12@"], "fams": ["@F8@"], "facts": []}, "@I250158659034@": {"id": "@I250158659034@", "name": "Steven Asher Berman", "given": "Steven Asher", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F8@"], "fams": ["@F26@"], "facts": []}, "@I250158659497@": {"id": "@I250158659497@", "name": "Akiko ", "given": "Akiko", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F26@"], "facts": []}, "@I250158659551@": {"id": "@I250158659551@", "name": "Ayumi Berman", "given": "Ayumi", "surname": "Berman", "sex": "F", "birthDate": "1999", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F26@"], "fams": [], "facts": []}, "@I250158659607@": {"id": "@I250158659607@", "name": "Shiori  Berman", "given": "Shiori ", "surname": "Berman", "sex": "F", "birthDate": "2003", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F26@"], "fams": [], "facts": []}, "@I250158659820@": {"id": "@I250158659820@", "name": "Greg Berman", "given": "Greg", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F8@"], "fams": ["@F7@", "@F6@"], "facts": []}, "@I250158659902@": {"id": "@I250158659902@", "name": "Anne Guild", "given": "Anne", "surname": "Guild", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F6@"], "facts": []}, "@I250158718157@": {"id": "@I250158718157@", "name": "Adam Goldberg", "given": "Adam", "surname": "Goldberg", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F11@"], "facts": []}, "@I250158731127@": {"id": "@I250158731127@", "name": "Nan Cambell", "given": "Nan", "surname": "Cambell", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F7@"], "facts": []}, "@I250158792547@": {"id": "@I250158792547@", "name": "Skyler Berman", "given": "Skyler", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F7@"], "fams": ["@F16@"], "facts": []}, "@I250158792580@": {"id": "@I250158792580@", "name": "Avery  Berman", "given": "Avery ", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F7@"], "fams": ["@F40@"], "facts": []}, "@I250158792603@": {"id": "@I250158792603@", "name": "Jamie ", "given": "Jamie", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F16@"], "facts": []}, "@I250158792621@": {"id": "@I250158792621@", "name": "Lowan Berman", "given": "Lowan", "surname": "Berman", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F16@"], "fams": [], "facts": []}, "@I250158792649@": {"id": "@I250158792649@", "name": "Beth Barter", "given": "Beth", "surname": "Barter", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F40@"], "facts": []}, "@I250160343085@": {"id": "@I250160343085@", "name": "Harry Portnuff", "given": "Harry", "surname": "Portnuff", "sex": "M", "birthDate": "7 Aug 1902", "birthPlace": "", "deathDate": "9 Dec 1991", "deathPlace": "Winnipeg MN, Canada", "famc": ["@F2@"], "fams": ["@F12@"], "facts": []}, "@I250160343492@": {"id": "@I250160343492@", "name": "Paul Joshron Portnuff", "given": "Paul Joshron", "surname": "Portnuff", "sex": "M", "birthDate": "1932", "birthPlace": "", "deathDate": "18 Jan 2010", "deathPlace": "", "famc": ["@F12@"], "fams": [], "facts": []}, "@I250160343630@": {"id": "@I250160343630@", "name": "Anne ", "given": "Anne", "surname": "", "sex": "F", "birthDate": "11 Oct 1901", "birthPlace": "", "deathDate": "28 Feb 1990", "deathPlace": "", "famc": ["@F99@"], "fams": ["@F12@"], "facts": []}, "@I250164435741@": {"id": "@I250164435741@", "name": "Faye Shaen", "given": "Faye", "surname": "Shaen", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F90@"], "facts": []}, "@I250164435822@": {"id": "@I250164435822@", "name": "David Berman", "given": "David", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F90@"], "facts": []}, "@I250164435893@": {"id": "@I250164435893@", "name": "Ronnie Berman", "given": "Ronnie", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F90@"], "fams": [], "facts": []}, "@I250164435951@": {"id": "@I250164435951@", "name": "Leonard Berman", "given": "Leonard", "surname": "Berman", "sex": "M", "birthDate": "1 Aug 1918", "birthPlace": "", "deathDate": "2 Mar 1998", "deathPlace": "Winnipeg MN, Canada", "famc": ["@F90@"], "fams": ["@F3@"], "facts": []}, "@I250164435996@": {"id": "@I250164435996@", "name": "Arthur Berman", "given": "Arthur", "surname": "Berman", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F90@"], "fams": [], "facts": []}, "@I250164437712@": {"id": "@I250164437712@", "name": "Frema ", "given": "Frema", "surname": "", "sex": "F", "birthDate": "9 Mar 1922", "birthPlace": "", "deathDate": "29 Jun 1993", "deathPlace": "Winnipeg MN, Canada", "famc": [], "fams": ["@F3@"], "facts": []}, "@I250167764661@": {"id": "@I250167764661@", "name": "Irving Wolkowicz", "given": "Irving", "surname": "Wolkowicz", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F109@"], "facts": []}, "@I250168755389@": {"id": "@I250168755389@", "name": "David Rabinovitch", "given": "David", "surname": "Rabinovitch", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F99@"], "facts": []}, "@I250168755427@": {"id": "@I250168755427@", "name": "Sonya ", "given": "Sonya", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F99@"], "facts": []}, "@I250168755476@": {"id": "@I250168755476@", "name": "Joseph Portnuff", "given": "Joseph", "surname": "Portnuff", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F2@"], "facts": []}, "@I250168755493@": {"id": "@I250168755493@", "name": "Gertrude ", "given": "Gertrude", "surname": "", "sex": "F", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F2@"], "facts": []}, "@I252100260504@": {"id": "@I252100260504@", "name": "Chase Gabriel Wolkowicz", "given": "Chase Gabriel", "surname": "Wolkowicz", "sex": "M", "birthDate": "7 May 2019", "birthPlace": "Toronto, Ontario, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F5@"], "fams": [], "facts": []}, "@I252126099970@": {"id": "@I252126099970@", "name": "Joshuah (Josh) Cohen", "given": "Joshuah (Josh)", "surname": "Cohen", "sex": "M", "birthDate": "4 Aug 1989", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F85@"], "facts": []}, "@I252256081975@": {"id": "@I252256081975@", "name": "Dylan Levi (Lev David) Goldberg", "given": "Dylan Levi (Lev David)", "surname": "Goldberg", "sex": "M", "birthDate": "5 Jan 2021", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F11@"], "fams": [], "facts": []}, "@I252274626502@": {"id": "@I252274626502@", "name": "Teddy Max Wolkowicz", "given": "Teddy Max", "surname": "Wolkowicz", "sex": "F", "birthDate": "09 Mar 2021", "birthPlace": "Toronto, Ontario, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F5@"], "fams": [], "facts": []}, "@I252436593078@": {"id": "@I252436593078@", "name": "Romy Hazel Goldberg", "given": "Romy Hazel", "surname": "Goldberg", "sex": "F", "birthDate": "20 Sep 2022", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F11@"], "fams": [], "facts": []}, "@I252436593213@": {"id": "@I252436593213@", "name": "Cole Myles Mata Cohen", "given": "Cole Myles Mata", "surname": "Cohen", "sex": "M", "birthDate": "19 Oct 2022", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F85@"], "fams": [], "facts": []}, "@I252527294374@": {"id": "@I252527294374@", "name": "Rebecca Anne Shalansky", "given": "Rebecca Anne", "surname": "Shalansky", "sex": "F", "birthDate": "19 Nov 1992", "birthPlace": "North Vancouver, British Columbia, Canada", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F9@"], "facts": []}, "@I252575167179@": {"id": "@I252575167179@", "name": "Mario Gropper", "given": "Mario", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F56@"], "fams": [], "facts": []}, "@I252575167218@": {"id": "@I252575167218@", "name": "Jorge Gropper", "given": "Jorge", "surname": "Gropper", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": ["@F56@"], "fams": [], "facts": []}, "@I252575167263@": {"id": "@I252575167263@", "name": "Celo ", "given": "Celo", "surname": "", "sex": "M", "birthDate": "", "birthPlace": "", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F56@"], "facts": []}, "@I252615626535@": {"id": "@I252615626535@", "name": "Jake Alexander Rotman", "given": "Jake Alexander", "surname": "Rotman", "sex": "M", "birthDate": "09 01 1996", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": [], "fams": ["@F1@"], "facts": []}, "@I252643055674@": {"id": "@I252643055674@", "name": "Addison (Addie) Reid Cohen", "given": "Addison (Addie) Reid", "surname": "Cohen", "sex": "F", "birthDate": "10 Dec 2024", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F85@"], "fams": [], "facts": []}, "@I252693314581@": {"id": "@I252693314581@", "name": "Ollie (Olivery) Hayes Wolkowicz", "given": "Ollie (Olivery) Hayes", "surname": "Wolkowicz", "sex": "F", "birthDate": "19 Apr 2025", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F5@"], "fams": [], "facts": []}, "@I252706229670@": {"id": "@I252706229670@", "name": "Sally Gwen Gropper", "given": "Sally Gwen", "surname": "Gropper", "sex": "F", "birthDate": "13 Aug 2025", "birthPlace": "Toronto ON, Canada", "deathDate": "", "deathPlace": "", "famc": ["@F9@"], "fams": [], "facts": []}}, "families": {"@F1@": {"id": "@F1@", "husb": "@I252615626535@", "wife": "@I12622904096@", "chil": [], "marrDate": "29 Aug 2024", "marrPlace": ""}, "@F2@": {"id": "@F2@", "husb": "@I250168755476@", "wife": "@I250168755493@", "chil": ["@I250160343085@"], "marrDate": "", "marrPlace": ""}, "@F3@": {"id": "@F3@", "husb": "@I250164435951@", "wife": "@I250164437712@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F4@": {"id": "@F4@", "husb": "@I250148403811@", "wife": "@I250148411398@", "chil": ["@I250148417381@", "@I250148415171@", "@I250148414056@", "@I250148412645@"], "marrDate": "", "marrPlace": ""}, "@F5@": {"id": "@F5@", "husb": "@I250148443257@", "wife": "@I12622904097@", "chil": ["@I252100260504@", "@I252274626502@", "@I252693314581@"], "marrDate": "9 Oct 2016", "marrPlace": ""}, "@F6@": {"id": "@F6@", "husb": "@I250158659820@", "wife": "@I250158659902@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F7@": {"id": "@F7@", "husb": "@I250158659820@", "wife": "@I250158731127@", "chil": ["@I250158792580@", "@I250158792547@"], "marrDate": "", "marrPlace": ""}, "@F8@": {"id": "@F8@", "husb": "@I250158658794@", "wife": "@I250158658842@", "chil": ["@I12622904092@", "@I250158659820@", "@I250158659034@"], "marrDate": "", "marrPlace": ""}, "@F9@": {"id": "@F9@", "husb": "@I12622904140@", "wife": "@I252527294374@", "chil": ["@I252706229670@"], "marrDate": "", "marrPlace": ""}, "@F10@": {"id": "@F10@", "husb": "@I250038962973@", "wife": "@I250038962699@", "chil": ["@I12622904220@"], "marrDate": "", "marrPlace": ""}, "@F11@": {"id": "@F11@", "husb": "@I250158718157@", "wife": "@I12622904122@", "chil": ["@I252256081975@", "@I252436593078@"], "marrDate": "", "marrPlace": ""}, "@F12@": {"id": "@F12@", "husb": "@I250160343085@", "wife": "@I250160343630@", "chil": ["@I250158658842@", "@I250160343492@"], "marrDate": "", "marrPlace": ""}, "@F13@": {"id": "@F13@", "husb": "@I250148405204@", "wife": "@I250148418708@", "chil": ["@I250148423428@", "@I250148421034@", "@I250148420160@", "@I250148419743@"], "marrDate": "", "marrPlace": ""}, "@F14@": {"id": "@F14@", "husb": "@I250148415938@", "wife": "@I250148415171@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F15@": {"id": "@F15@", "husb": "@I12622904160@", "wife": "@I12622904111@", "chil": ["@I12622904161@", "@I12622904102@"], "marrDate": "", "marrPlace": ""}, "@F16@": {"id": "@F16@", "husb": "@I250158792547@", "wife": "@I250158792603@", "chil": ["@I250158792621@"], "marrDate": "", "marrPlace": ""}, "@F17@": {"id": "@F17@", "husb": "@I12622904292@", "wife": "@I12622904164@", "chil": [], "marrDate": "1954", "marrPlace": ""}, "@F18@": {"id": "@F18@", "husb": "@I12622904166@", "wife": "@I12622904145@", "chil": ["@I12622904164@"], "marrDate": "02 JAN 1932", "marrPlace": ""}, "@F19@": {"id": "@F19@", "husb": "@I12622904167@", "wife": "@I12622904238@", "chil": ["@I12622904171@", "@I12622904187@"], "marrDate": "", "marrPlace": ""}, "@F20@": {"id": "@F20@", "husb": "@I12622904168@", "wife": "@I12622904089@", "chil": ["@I12622904120@", "@I12622904159@"], "marrDate": "1944", "marrPlace": ""}, "@F21@": {"id": "@F21@", "husb": "@I12622904170@", "wife": "@I12622904222@", "chil": ["@I12622904179@", "@I12622904129@", "@I12622904183@"], "marrDate": "24 AUG 1958", "marrPlace": "Toronto ON, Canada"}, "@F22@": {"id": "@F22@", "husb": "@I12622904283@", "wife": "@I12622904171@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F23@": {"id": "@F23@", "husb": "@I12622904172@", "wife": "@I12622904273@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F24@": {"id": "@F24@", "husb": "@I12622904172@", "wife": "@I12622904286@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F25@": {"id": "@F25@", "husb": "@I12622904173@", "wife": "@I12622904106@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F26@": {"id": "@F26@", "husb": "@I250158659034@", "wife": "@I250158659497@", "chil": ["@I250158659551@", "@I250158659607@"], "marrDate": "", "marrPlace": ""}, "@F27@": {"id": "@F27@", "husb": "@I12622904175@", "wife": "@I12622904267@", "chil": ["@I12622904126@", "@I12622904170@"], "marrDate": "27 MAR 1924", "marrPlace": "Botosani, Romania"}, "@F28@": {"id": "@F28@", "husb": "@I12622904176@", "wife": "@I12622904277@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F29@": {"id": "@F29@", "husb": "@I12622904177@", "wife": "@I12622904083@", "chil": ["@I12622904141@", "@I12622904182@"], "marrDate": "", "marrPlace": ""}, "@F30@": {"id": "@F30@", "husb": "@I12622904178@", "wife": "@I12622904090@", "chil": ["@I12622904160@", "@I12622904130@", "@I12622904149@"], "marrDate": "", "marrPlace": ""}, "@F31@": {"id": "@F31@", "husb": "@I12622904098@", "wife": "@I12622904179@", "chil": ["@I12622904097@", "@I12622904095@", "@I12622904096@"], "marrDate": "03 MAR 1987", "marrPlace": "Toronto ON, Canada"}, "@F32@": {"id": "@F32@", "husb": "@I12622904180@", "wife": "@I12622904112@", "chil": ["@I12622904131@", "@I12622904185@"], "marrDate": "28 OCT 1939", "marrPlace": ""}, "@F33@": {"id": "@F33@", "husb": "@I12622904085@", "wife": "@I12622904182@", "chil": [], "marrDate": "ABT 1930", "marrPlace": ""}, "@F34@": {"id": "@F34@", "husb": "@I12622904092@", "wife": "@I12622904183@", "chil": ["@I12622904093@", "@I12622904091@", "@I12622904094@"], "marrDate": "22 JUN 1997", "marrPlace": "Toronto ON, Canada"}, "@F35@": {"id": "@F35@", "husb": "@I12622904185@", "wife": "@I12622904216@", "chil": ["@I12622904193@"], "marrDate": "1964", "marrPlace": ""}, "@F36@": {"id": "@F36@", "husb": "@I12622904185@", "wife": "@I12622904217@", "chil": ["@I12622904190@", "@I12622904186@"], "marrDate": "", "marrPlace": ""}, "@F37@": {"id": "@F37@", "husb": "@I12622904080@", "wife": "@I12622904187@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F38@": {"id": "@F38@", "husb": "@I12622904269@", "wife": "@I12622904188@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F39@": {"id": "@F39@", "husb": "@I12622904213@", "wife": "@I12622904189@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F40@": {"id": "@F40@", "husb": "@I250158792580@", "wife": "@I250158792649@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F41@": {"id": "@F41@", "husb": "@I12622904128@", "wife": "@I12622904078@", "chil": ["@I12622904157@", "@I12622904172@", "@I12622904177@", "@I12622904189@", "@I12622904200@"], "marrDate": "1897", "marrPlace": ""}, "@F42@": {"id": "@F42@", "husb": "@I12622904129@", "wife": "@I12622904285@", "chil": ["@I12622904122@", "@I12622904140@", "@I12622904181@", "@I12622904119@"], "marrDate": "24 AUG 1989", "marrPlace": "Toronto ON, Canada"}, "@F43@": {"id": "@F43@", "husb": "@I12622904130@", "wife": "@I12622904218@", "chil": ["@I12622904162@"], "marrDate": "", "marrPlace": ""}, "@F44@": {"id": "@F44@", "husb": "@I12622904242@", "wife": "@I12622904131@", "chil": ["@I12622904240@", "@I12622904239@", "@I12622904241@"], "marrDate": "1964", "marrPlace": ""}, "@F45@": {"id": "@F45@", "husb": "@I12622904132@", "wife": "@I12622904115@", "chil": ["@I12622904180@", "@I12622904145@"], "marrDate": "1912", "marrPlace": "Romania"}, "@F46@": {"id": "@F46@", "husb": "@I12622904151@", "wife": "@I12622904134@", "chil": ["@I12622904121@", "@I12622904168@", "@I12622904144@", "@I12622904197@", "@I12622904198@"], "marrDate": "1910", "marrPlace": ""}, "@F47@": {"id": "@F47@", "husb": "@I12622904135@", "wife": "@I12622904290@", "chil": ["@I12622904191@", "@I12622904123@"], "marrDate": "16 OCT 1983", "marrPlace": ""}, "@F48@": {"id": "@F48@", "husb": "@I12622904137@", "wife": "@I12622904158@", "chil": ["@I12622904176@", "@I12622904134@", "@I12622904103@"], "marrDate": "", "marrPlace": ""}, "@F49@": {"id": "@F49@", "husb": "@I12622904081@", "wife": "@I12622904138@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F50@": {"id": "@F50@", "husb": "@I12622904084@", "wife": "@I12622904141@", "chil": [], "marrDate": "ABT 1930", "marrPlace": ""}, "@F51@": {"id": "@F51@", "husb": "@I12622904223@", "wife": "@I12622904142@", "chil": ["@I12622904225@", "@I12622904224@"], "marrDate": "", "marrPlace": ""}, "@F52@": {"id": "@F52@", "husb": "@I12622904143@", "wife": "@I12622904219@", "chil": ["@I12622904196@", "@I12622904201@"], "marrDate": "", "marrPlace": ""}, "@F53@": {"id": "@F53@", "husb": "@I12622904144@", "wife": "@I12622904116@", "chil": ["@I12622904174@", "@I12622904135@", "@I12622904133@"], "marrDate": "06 DEC 1953", "marrPlace": ""}, "@F54@": {"id": "@F54@", "husb": "@I12622904072@", "wife": "@I12622904146@", "chil": ["@I12622904215@", "@I12622904229@", "@I12622904237@", "@I12622904249@"], "marrDate": "", "marrPlace": ""}, "@F55@": {"id": "@F55@", "husb": "@I12622904254@", "wife": "@I12622904147@", "chil": ["@I12622904252@", "@I12622904257@", "@I12622904251@", "@I12622904255@", "@I12622904256@"], "marrDate": "22 FEB 1921", "marrPlace": ""}, "@F56@": {"id": "@F56@", "husb": "@I252575167263@", "wife": "@I12622904148@", "chil": ["@I252575167179@", "@I252575167218@"], "marrDate": "", "marrPlace": ""}, "@F57@": {"id": "@F57@", "husb": "@I12622904153@", "wife": "@I12622904288@", "chil": ["@I12622904155@", "@I12622904167@", "@I12622904125@"], "marrDate": "", "marrPlace": ""}, "@F58@": {"id": "@F58@", "husb": "@I12622904153@", "wife": "@I12622904291@", "chil": ["@I12622904136@"], "marrDate": "1907", "marrPlace": ""}, "@F59@": {"id": "@F59@", "husb": "@I12622904154@", "wife": "@I12622904284@", "chil": ["@I12622904194@", "@I12622904178@"], "marrDate": "03 MAR 1932", "marrPlace": ""}, "@F60@": {"id": "@F60@", "husb": "@I12622904155@", "wife": "@I12622904282@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F61@": {"id": "@F61@", "husb": "@I12622904155@", "wife": "@I12622904289@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F62@": {"id": "@F62@", "husb": "@I12622904156@", "wife": "@I12622904101@", "chil": ["@I12622904146@", "@I12622904158@", "@I12622904104@"], "marrDate": "ABT 1848", "marrPlace": ""}, "@F63@": {"id": "@F63@", "husb": "@I12622904156@", "wife": "@I12622904293@", "chil": ["@I12622904195@", "@I12622904127@", "@I12622904128@", "@I12622904142@"], "marrDate": "1855", "marrPlace": ""}, "@F64@": {"id": "@F64@", "husb": "@I12622904157@", "wife": "@I12622904243@", "chil": ["@I12622904152@"], "marrDate": "", "marrPlace": ""}, "@F65@": {"id": "@F65@", "husb": "@I12622904099@", "wife": "@I12622904264@", "chil": ["@I12622904100@"], "marrDate": "", "marrPlace": ""}, "@F66@": {"id": "@F66@", "husb": "@I12622904105@", "wife": "@I12622904202@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F67@": {"id": "@F67@", "husb": "@I12622904192@", "wife": "@I12622904113@", "chil": ["@I12622904150@", "@I12622904124@"], "marrDate": "", "marrPlace": ""}, "@F68@": {"id": "@F68@", "husb": "@I12622904125@", "wife": "@I12622904114@", "chil": ["@I12622904163@"], "marrDate": "", "marrPlace": ""}, "@F69@": {"id": "@F69@", "husb": "@I12622904118@", "wife": "@I12622904117@", "chil": ["@I12622904173@", "@I12622904148@", "@I12622904169@", "@I12622904139@"], "marrDate": "", "marrPlace": "bunos aires"}, "@F70@": {"id": "@F70@", "husb": "@I12622904121@", "wife": "@I12622904236@", "chil": ["@I12622904192@", "@I12622904138@"], "marrDate": "1948", "marrPlace": ""}, "@F71@": {"id": "@F71@", "husb": "@I12622904274@", "wife": "@I12622904127@", "chil": ["@I12622904275@", "@I12622904269@", "@I12622904265@", "@I12622904276@"], "marrDate": "", "marrPlace": ""}, "@F72@": {"id": "@F72@", "husb": "@I12622904068@", "wife": "@I12622904071@", "chil": ["@I12622904156@"], "marrDate": "", "marrPlace": ""}, "@F73@": {"id": "@F73@", "husb": "@I12622904269@", "wife": "@I12622904069@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F74@": {"id": "@F74@", "husb": "@I12622904269@", "wife": "@I12622904070@", "chil": [], "marrDate": "", "marrPlace": "Israel"}, "@F75@": {"id": "@F75@", "husb": "@I12622904215@", "wife": "@I12622904073@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F76@": {"id": "@F76@", "husb": "@I12622904229@", "wife": "@I12622904074@", "chil": ["@I12622904214@"], "marrDate": "", "marrPlace": ""}, "@F77@": {"id": "@F77@", "husb": "@I12622904237@", "wife": "@I12622904075@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F78@": {"id": "@F78@", "husb": "@I12622904076@", "wife": "@I12622904249@", "chil": ["@I12622904202@", "@I12622904232@", "@I12622904247@"], "marrDate": "", "marrPlace": ""}, "@F79@": {"id": "@F79@", "husb": "@I12622904271@", "wife": "@I12622904077@", "chil": ["@I12622904268@"], "marrDate": "", "marrPlace": ""}, "@F80@": {"id": "@F80@", "husb": "@I12622904079@", "wife": "@I12622904288@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F81@": {"id": "@F81@", "husb": "@I12622904207@", "wife": "@I12622904082@", "chil": ["@I12622904203@", "@I12622904204@", "@I12622904210@"], "marrDate": "", "marrPlace": ""}, "@F82@": {"id": "@F82@", "husb": "@I12622904086@", "wife": "@I12622904087@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F83@": {"id": "@F83@", "husb": "@I12622904086@", "wife": "@I12622904200@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F84@": {"id": "@F84@", "husb": "@I12622904088@", "wife": "@I12622904282@", "chil": ["@I12622904283@"], "marrDate": "", "marrPlace": ""}, "@F85@": {"id": "@F85@", "husb": "@I252126099970@", "wife": "@I12622904095@", "chil": ["@I252436593213@", "@I252643055674@"], "marrDate": "28 Aug 2020", "marrPlace": "Toronto, Ontario, Canada"}, "@F86@": {"id": "@F86@", "husb": "@I12622904226@", "wife": "@I12622904294@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F87@": {"id": "@F87@", "husb": "@I12622904230@", "wife": "@I12622904294@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F88@": {"id": "@F88@", "husb": "@I12622904295@", "wife": "@I12622904199@", "chil": ["@I12622904294@"], "marrDate": "1913", "marrPlace": "Ciuleni, Romania"}, "@F89@": {"id": "@F89@", "husb": "@I12622904258@", "wife": "@I12622904265@", "chil": ["@I12622904261@", "@I12622904262@"], "marrDate": "", "marrPlace": ""}, "@F90@": {"id": "@F90@", "husb": "@I250164435822@", "wife": "@I250164435741@", "chil": ["@I250164435951@", "@I250158658794@", "@I250164435996@", "@I250164435893@"], "marrDate": "", "marrPlace": ""}, "@F91@": {"id": "@F91@", "husb": "@I12622904260@", "wife": "@I12622904228@", "chil": ["@I12622904259@"], "marrDate": "", "marrPlace": ""}, "@F92@": {"id": "@F92@", "husb": "@I12622904263@", "wife": "@I12622904225@", "chil": ["@I12622904264@", "@I12622904260@"], "marrDate": "1920", "marrPlace": ""}, "@F93@": {"id": "@F93@", "husb": "@I12622904195@", "wife": "@I12622904268@", "chil": ["@I12622904153@", "@I12622904132@", "@I12622904151@", "@I12622904175@", "@I12622904154@", "@I12622904199@", "@I12622904118@", "@I12622904166@", "@I12622904147@"], "marrDate": "1882", "marrPlace": ""}, "@F94@": {"id": "@F94@", "husb": "@I12622904270@", "wife": "@I12622904248@", "chil": ["@I12622904267@", "@I12622904266@", "@I12622904272@"], "marrDate": "1890", "marrPlace": "Botosani, Romania"}, "@F95@": {"id": "@F95@", "husb": "@I12622904206@", "wife": "@I12622904275@", "chil": ["@I12622904207@", "@I12622904209@", "@I12622904211@"], "marrDate": "", "marrPlace": ""}, "@F96@": {"id": "@F96@", "husb": "@I12622904234@", "wife": "@I12622904276@", "chil": ["@I12622904235@"], "marrDate": "", "marrPlace": ""}, "@F97@": {"id": "@F97@", "husb": "@I12622904214@", "wife": "@I12622904278@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F98@": {"id": "@F98@", "husb": "@I12622904279@", "wife": "@I12622904232@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F99@": {"id": "@F99@", "husb": "@I250168755427@", "wife": "@I250168755389@", "chil": ["@I250160343630@"], "marrDate": "", "marrPlace": ""}, "@F100@": {"id": "@F100@", "husb": "@I12622904194@", "wife": "@I12622904227@", "chil": ["@I12622904143@", "@I12622904165@", "@I12622904184@"], "marrDate": "", "marrPlace": "Philadelphia, USA"}, "@F101@": {"id": "@F101@", "husb": "@I12622904210@", "wife": "@I12622904231@", "chil": ["@I12622904205@", "@I12622904208@", "@I12622904212@"], "marrDate": "", "marrPlace": ""}, "@F102@": {"id": "@F102@", "husb": "@I12622904233@", "wife": "@I12622904240@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F103@": {"id": "@F103@", "husb": "@I12622904250@", "wife": "@I12622904239@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F104@": {"id": "@F104@", "husb": "@I12622904245@", "wife": "@I12622904247@", "chil": [], "marrDate": "", "marrPlace": ""}, "@F105@": {"id": "@F105@", "husb": "@I12622904253@", "wife": "@I12622904246@", "chil": ["@I12622904254@"], "marrDate": "", "marrPlace": ""}, "@F106@": {"id": "@F106@", "husb": "@I12622904221@", "wife": "@I12622904220@", "chil": ["@I12622904222@"], "marrDate": "", "marrPlace": ""}, "@F107@": {"id": "@F107@", "husb": "@I250148407498@", "wife": null, "chil": ["@I250148426802@", "@I250148425416@"], "marrDate": "", "marrPlace": ""}, "@F108@": {"id": "@F108@", "husb": "@I250148399156@", "wife": null, "chil": ["@I250148407498@", "@I250148406807@", "@I250148405204@", "@I250148403811@", "@I12622904248@"], "marrDate": "", "marrPlace": ""}, "@F109@": {"id": "@F109@", "husb": "@I250167764661@", "wife": null, "chil": ["@I250148443257@"], "marrDate": "", "marrPlace": ""}, "@F110@": {"id": "@F110@", "husb": null, "wife": "@I12622904287@", "chil": ["@I12622904107@", "@I12622904108@", "@I12622904109@", "@I12622904280@", "@I12622904281@"], "marrDate": "", "marrPlace": ""}, "@F111@": {"id": "@F111@", "husb": null, "wife": "@I12622904107@", "chil": ["@I12622904110@"], "marrDate": "", "marrPlace": ""}, "@F112@": {"id": "@F112@", "husb": "@I250148406807@", "wife": null, "chil": ["@I250148428201@"], "marrDate": "", "marrPlace": ""}}};
+const INDI = DATA.individuals;
+const FAM = DATA.families;
+const ALL_IDS = Object.keys(INDI);
+
+/* ---------------- Helpers ---------------- */
+function person(id){ return INDI[id]; }
+function displayName(id){
+  const p = INDI[id];
+  if(!p) return 'Unknown';
+  const n = (p.name||'').trim();
+  return n.length ? n : 'Unnamed';
+}
+function birthYear(id){
+  const p = INDI[id];
+  if(!p || !p.birthDate) return null;
+  const m = p.birthDate.match(/\d{4}/);
+  return m ? m[0] : null;
+}
+function deathYear(id){
+  const p = INDI[id];
+  if(!p || !p.deathDate) return null;
+  const m = p.deathDate.match(/\d{4}/);
+  return m ? m[0] : null;
+}
+function lifespan(id){
+  const b = birthYear(id), d = deathYear(id);
+  if(b && d) return b + '–' + d;
+  if(b) return 'b. ' + b;
+  if(d) return 'd. ' + d;
+  return '';
+}
+function initials(id){
+  const p = INDI[id];
+  const n = displayName(id);
+  if(n === 'Unnamed' || n === 'Unknown') return '?';
+  const parts = n.split(/\s+/).filter(Boolean);
+  if(parts.length===1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length-1][0]).toUpperCase();
+}
+function sexClass(id){
+  const p = INDI[id];
+  if(!p) return 'u';
+  if(p.sex==='M') return 'm';
+  if(p.sex==='F') return 'f';
+  return 'u';
+}
+
+function familyOf(famId){ return FAM[famId]; }
+
+function getParentFamily(id){
+  const p = INDI[id];
+  if(!p || !p.famc || !p.famc.length) return null;
+  return familyOf(p.famc[0]);
+}
+function getParents(id){
+  const f = getParentFamily(id);
+  if(!f) return [];
+  return [f.husb, f.wife].filter(x => x && INDI[x]);
+}
+function getSpouseFamilies(id){
+  const p = INDI[id];
+  if(!p) return [];
+  return (p.fams||[]).map(fid => familyOf(fid)).filter(Boolean);
+}
+function getSpouses(id){
+  const fams = getSpouseFamilies(id);
+  const out = [];
+  fams.forEach(f=>{
+    [f.husb,f.wife].forEach(x=>{
+      if(x && x!==id && INDI[x] && !out.includes(x)) out.push(x);
+    });
+  });
+  return out;
+}
+function getChildren(id){
+  const fams = getSpouseFamilies(id);
+  const out = [];
+  fams.forEach(f=>{
+    (f.chil||[]).forEach(c=>{ if(INDI[c] && !out.includes(c)) out.push(c); });
+  });
+  return out;
+}
+function getSiblings(id){
+  const f = getParentFamily(id);
+  if(!f) return [];
+  return (f.chil||[]).filter(c => c!==id && INDI[c]);
+}
+function areSpouses(a,b){
+  return getSpouses(a).includes(b);
+}
+
+/* ---------------- Ancestor BFS ---------------- */
+function getAncestors(id){
+  const dist = new Map();
+  const parentOf = new Map(); // ancestorId -> childId step toward id
+  dist.set(id,0);
+  const queue = [id];
+  while(queue.length){
+    const cur = queue.shift();
+    const d = dist.get(cur);
+    const parents = getParents(cur);
+    parents.forEach(p=>{
+      if(!dist.has(p)){
+        dist.set(p, d+1);
+        parentOf.set(p, cur);
+        queue.push(p);
+      }
+    });
+  }
+  return {dist, parentOf};
+}
+
+function reconstructPath(parentOf, startId, ancestorId){
+  // walk from ancestorId down to startId using parentOf (ancestor->child step)
+  // returns array [startId, ..., ancestorId]
+  const path = [ancestorId];
+  let cur = ancestorId;
+  while(cur !== startId){
+    const next = parentOf.get(cur);
+    if(next===undefined) break;
+    path.push(next);
+    cur = next;
+  }
+  return path.reverse(); // startId ... ancestorId
+}
+
+/* ---------------- Label building ---------------- */
+function ordinal(n){
+  const words = ['Zeroth','First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth','Eleventh','Twelfth'];
+  if(n < words.length) return words[n];
+  const s = ["th","st","nd","rd"], v = n%100;
+  return n + (s[(v-20)%10] || s[v] || s[0]);
+}
+function removedTerm(n){
+  const words = ['','Once','Twice','Three Times','Four Times','Five Times'];
+  if(n < words.length) return words[n];
+  return n + ' Times';
+}
+function greatPrefix(n){
+  if(n<=0) return '';
+  return 'Great-'.repeat(n);
+}
+function sexTerm(sex, mWord, fWord, uWord){
+  if(sex==='M') return mWord;
+  if(sex==='F') return fWord;
+  return uWord;
+}
+function ancestorTerm(depth, targetSex){
+  if(depth===1) return sexTerm(targetSex,'Father','Mother','Parent');
+  if(depth===2) return sexTerm(targetSex,'Grandfather','Grandmother','Grandparent');
+  const greats = depth-2;
+  return greatPrefix(greats) + sexTerm(targetSex,'Grandfather','Grandmother','Grandparent');
+}
+function descendantTerm(depth, targetSex){
+  if(depth===1) return sexTerm(targetSex,'Son','Daughter','Child');
+  if(depth===2) return sexTerm(targetSex,'Grandson','Granddaughter','Grandchild');
+  const greats = depth-2;
+  return greatPrefix(greats) + sexTerm(targetSex,'Grandson','Granddaughter','Grandchild');
+}
+function siblingTerm(targetSex, half){
+  return (half?'Half-':'') + sexTerm(targetSex,'Brother','Sister','Sibling');
+}
+function auncleTerm(greats, targetSex, half){
+  const base = sexTerm(targetSex,'Uncle','Aunt','Aunt/Uncle');
+  return (half?'Half-':'') + greatPrefix(greats) + base;
+}
+function niblingTerm(greats, targetSex, half){
+  const base = sexTerm(targetSex,'Nephew','Niece','Niece/Nephew');
+  return (half?'Half-':'') + greatPrefix(greats) + base;
+}
+function cousinTerm(degree, removed, half){
+  let s = (half?'Half-':'') + ordinal(degree) + ' Cousin';
+  if(removed>0) s += ', ' + removedTerm(removed) + ' Removed';
+  return s;
+}
+
+function buildBloodLabel(gYou, gTarget, isFull, targetSex){
+  if(gYou===0 && gTarget===0) return 'This is you';
+  if(gTarget===0){
+    // target IS the common ancestor => target is an ancestor of "you"
+    return ancestorTerm(gYou, targetSex);
+  }
+  if(gYou===0){
+    // you are the common ancestor => target descends from you
+    return descendantTerm(gTarget, targetSex);
+  }
+  if(gYou===1 && gTarget===1){
+    return siblingTerm(targetSex, !isFull);
+  }
+  if(Math.min(gYou,gTarget)===1){
+    const greats = Math.max(gYou,gTarget)-2;
+    if(gTarget > gYou){
+      return niblingTerm(greats, targetSex, !isFull);
+    } else {
+      return auncleTerm(greats, targetSex, !isFull);
+    }
+  }
+  const degree = Math.min(gYou,gTarget)-1;
+  const removed = Math.abs(gYou-gTarget);
+  return cousinTerm(degree, removed, !isFull);
+}
+
+/* Core: find nearest common ancestor(s) between two people */
+function bloodPath(youId, targetId){
+  const A = getAncestors(youId);
+  const B = getAncestors(targetId);
+  let common = [];
+  A.dist.forEach((d,id)=>{
+    if(B.dist.has(id)) common.push({id, gYou:d, gTarget:B.dist.get(id)});
+  });
+  if(!common.length) return null;
+  common.sort((a,b)=>(a.gYou+a.gTarget)-(b.gYou+b.gTarget));
+  const minTotal = common[0].gYou + common[0].gTarget;
+  const best = common.filter(c=>c.gYou+c.gTarget===minTotal);
+  const isFull = best.length>=2;
+  const {gYou,gTarget,id:ancestorId} = best[0];
+  const pathYouUp = reconstructPath(A.parentOf, youId, ancestorId);       // you...ancestor
+  const pathTargetUp = reconstructPath(B.parentOf, targetId, ancestorId); // target...ancestor
+  return {gYou,gTarget,ancestorId,isFull,pathYouUp,pathTargetUp};
+}
+
+/* Full relationship resolver, with in-law fallback */
+function resolveRelationship(youId, targetId){
+  if(youId===targetId){
+    return {kind:'self'};
+  }
+  if(areSpouses(youId,targetId)){
+    return {kind:'spouse', label: sexTerm(person(targetId).sex,'Husband','Wife','Spouse'),
+            chain:[{id:youId,role:'You'},{id:targetId,role:'Spouse',connector:'married to'}]};
+  }
+  const bp = bloodPath(youId, targetId);
+  if(bp){
+    const label = buildBloodLabel(bp.gYou, bp.gTarget, bp.isFull, person(targetId).sex);
+    const chain = buildBloodChain(bp, youId, targetId);
+    return {kind:'blood', label, chain, half: !bp.isFull && (bp.gYou>0 && bp.gTarget>0)};
+  }
+  // in-law fallback: your spouse is blood-related to target
+  for(const sp of getSpouses(youId)){
+    const bp2 = bloodPath(sp, targetId);
+    if(bp2){
+      const rawLabel = buildBloodLabel(bp2.gYou, bp2.gTarget, bp2.isFull, person(targetId).sex);
+      const inlaw = toInLaw(rawLabel, targetId, 'spouseSide');
+      const chain = [{id:youId,role:'You'},{id:sp,role:'Spouse',connector:'married to'}]
+        .concat(buildBloodChain(bp2, sp, targetId).slice(1));
+      return {kind:'inlaw', label: inlaw, chain};
+    }
+  }
+  // in-law fallback: target's spouse is blood-related to you
+  for(const sp of getSpouses(targetId)){
+    const bp3 = bloodPath(youId, sp);
+    if(bp3){
+      const rawLabel = buildBloodLabel(bp3.gYou, bp3.gTarget, bp3.isFull, person(sp).sex);
+      const inlaw = toInLaw(rawLabel, sp, 'targetSide', person(targetId).sex);
+      const chain = buildBloodChain(bp3, youId, sp)
+        .concat([{id:targetId,role:'Spouse',connector:'married to'}]);
+      return {kind:'inlaw', label: inlaw, chain};
+    }
+  }
+  return {kind:'none'};
+}
+
+function toInLaw(rawLabel, refPersonId, side, targetSexOverride){
+  const lower = rawLabel.toLowerCase();
+  const targetSex = targetSexOverride || person(refPersonId).sex;
+  if(/brother|sister|sibling/.test(lower)){
+    return sexTerm(targetSex,'Brother-in-law','Sister-in-law','Sibling-in-law');
+  }
+  if(/^father$|^mother$|^parent$/.test(lower)){
+    return sexTerm(targetSex,'Father-in-law','Mother-in-law','Parent-in-law');
+  }
+  if(/^son$|^daughter$|^child$/.test(lower)){
+    return sexTerm(targetSex,'Son-in-law','Daughter-in-law','Child-in-law');
+  }
+  if(side==='spouseSide') return "Your spouse's " + rawLabel;
+  return "Married to your " + rawLabel;
+}
+
+function buildBloodChain(bp, youId, targetId){
+  const up = bp.pathYouUp; // youId ... ancestor
+  const down = bp.pathTargetUp.slice(0,-1).reverse(); // ancestor-1 ... targetId (exclude ancestor, reversed to go downward)
+  const ids = up.concat(down); // youId ... ancestor ... targetId
+  const chain = [];
+  for(let i=0;i<ids.length;i++){
+    const id = ids[i];
+    const node = {id};
+    if(i===0){ node.role='You'; }
+    else if(i===up.length-1 && up.length>1){ node.role='Common ancestor'; }
+    else if(id===targetId){ node.role='Related person'; }
+    else { node.role=''; }
+    if(i>0){
+      // determine connector direction
+      if(i < up.length){
+        node.connector = 'child of';
+      } else {
+        node.connector = 'parent of';
+      }
+    }
+    if(up.length===1 && i===0){ /* you are the ancestor */ }
+    chain.push(node);
+  }
+  return chain;
+}
+
+/* ---------------- UI state ---------------- */
+let youId = null;
+let targetId = null;
+let detailId = null;
+
+const defaultYou = ALL_IDS.find(id => (INDI[id].name||'').includes('Lony') && (INDI[id].name||'').includes('Gropper')) || ALL_IDS[0];
+
+function avatarHTML(id, extraClass){
+  return `<div class="avatar ${sexClass(id)} ${extraClass||''}">${initials(id)}</div>`;
+}
+
+/* ---------------- Search dropdown ---------------- */
+function setupPicker(inputEl, dropdownEl, onSelect){
+  let matches = [];
+  let activeIdx = -1;
+
+  function render(query){
+    const q = query.trim().toLowerCase();
+    if(!q){ dropdownEl.style.display='none'; dropdownEl.innerHTML=''; return; }
+    matches = ALL_IDS.filter(id => displayName(id).toLowerCase().includes(q)).slice(0,40);
+    if(!matches.length){
+      dropdownEl.innerHTML = '<div class="dropdown-empty">No one found on record</div>';
+      dropdownEl.style.display='block';
+      return;
+    }
+    activeIdx = -1;
+    dropdownEl.innerHTML = matches.map((id,i)=>{
+      const ls = lifespan(id);
+      return `<div class="dropdown-item" data-idx="${i}">
+        <span>${displayName(id)}</span>
+        <span class="dyears">${ls}</span>
+      </div>`;
+    }).join('');
+    dropdownEl.style.display='block';
+    Array.from(dropdownEl.children).forEach((el,i)=>{
+      el.addEventListener('mousedown', (e)=>{
+        e.preventDefault();
+        onSelect(matches[i]);
+        dropdownEl.style.display='none';
+      });
+    });
+  }
+
+  inputEl.addEventListener('input', ()=>render(inputEl.value));
+  inputEl.addEventListener('focus', ()=>{ if(inputEl.value.trim()) render(inputEl.value); });
+  inputEl.addEventListener('keydown', (e)=>{
+    const items = Array.from(dropdownEl.children).filter(el=>el.classList.contains('dropdown-item'));
+    if(!items.length) return;
+    if(e.key==='ArrowDown'){ e.preventDefault(); activeIdx=Math.min(activeIdx+1, items.length-1); }
+    else if(e.key==='ArrowUp'){ e.preventDefault(); activeIdx=Math.max(activeIdx-1,0); }
+    else if(e.key==='Enter'){
+      e.preventDefault();
+      if(activeIdx>=0 && matches[activeIdx]){ onSelect(matches[activeIdx]); dropdownEl.style.display='none'; }
+      return;
+    } else { return; }
+    items.forEach((el,i)=>el.classList.toggle('active', i===activeIdx));
+    if(items[activeIdx]) items[activeIdx].scrollIntoView({block:'nearest'});
+  });
+  document.addEventListener('click', (e)=>{
+    if(!inputEl.contains(e.target) && !dropdownEl.contains(e.target)) dropdownEl.style.display='none';
+  });
+}
+
+function renderSelected(container, id){
+  if(!id){ container.innerHTML=''; return; }
+  container.innerHTML = `${avatarHTML(id)}
+    <div>
+      <div class="selected-name">${displayName(id)}</div>
+      <div class="selected-meta">${lifespan(id)}${person(id).birthPlace ? ' &middot; '+person(id).birthPlace : ''}</div>
+    </div>`;
+}
+
+/* ---------------- Relationship rendering ---------------- */
+function renderRelationship(){
+  const resultEl = document.getElementById('relResult');
+  if(!youId || !targetId){ resultEl.style.display='none'; return; }
+  resultEl.style.display='block';
+
+  if(youId===targetId){
+    document.getElementById('relOf').textContent = displayName(targetId) + ' is related to ' + displayName(youId) + ' as:';
+    document.getElementById('relTerm').textContent = 'The same person';
+    document.getElementById('relChain').innerHTML='';
+    document.getElementById('relNote').textContent='';
+    return;
+  }
+
+  const rel = resolveRelationship(youId, targetId);
+  document.getElementById('relOf').textContent = displayName(targetId) + ' is related to ' + displayName(youId) + ' as:';
+
+  if(rel.kind==='none'){
+    document.getElementById('relTerm').textContent = 'No connection found on this register';
+    document.getElementById('relChain').innerHTML='';
+    document.getElementById('relNote').textContent = 'No blood or marriage link between these two people could be traced in the uploaded records.';
+    return;
+  }
+
+  document.getElementById('relTerm').textContent = rel.label;
+
+  const chainEl = document.getElementById('relChain');
+  chainEl.innerHTML = '';
+  rel.chain.forEach((node, i)=>{
+    if(i>0){
+      const conn = document.createElement('div');
+      conn.className='chain-connector';
+      conn.innerHTML = `<span>${node.connector}</span>`;
+      chainEl.appendChild(conn);
+    }
+    const el = document.createElement('div');
+    el.className = 'chain-node' + (i===0||i===rel.chain.length-1 ? ' endpoint':'') + (node.role==='Common ancestor' ? ' ancestor':'');
+    el.dataset.id = node.id;
+    el.innerHTML = `${avatarHTML(node.id)}
+      <div class="chain-node-info">
+        ${node.role ? `<div class="role-tag">${node.role}</div>`:''}
+        <div class="selected-name">${displayName(node.id)}</div>
+        <div class="selected-meta">${lifespan(node.id)}</div>
+      </div>`;
+    el.addEventListener('click', ()=>showDetail(node.id));
+    chainEl.appendChild(el);
+  });
+
+  let note = '';
+  if(rel.kind==='inlaw') note = 'Connected by marriage, not by blood.';
+  else if(rel.half) note = 'This connection runs through only one shared parent (a half relation).';
+  document.getElementById('relNote').textContent = note;
+}
+
+/* ---------------- Detail panel ---------------- */
+function personChip(id){
+  return `<div class="person-chip" data-id="${id}">
+    ${avatarHTML(id)}
+    <span class="cname">${displayName(id)}</span>
+    <span class="cyears">${lifespan(id)}</span>
+  </div>`;
+}
+function wireChips(container){
+  container.querySelectorAll('.person-chip').forEach(el=>{
+    el.addEventListener('click', ()=> showDetail(el.dataset.id));
+  });
+}
+
+function showDetail(id){
+  detailId = id;
+  const p = person(id);
+  document.getElementById('detailPanel').style.display='block';
+  document.getElementById('detailAvatar').outerHTML = avatarHTML(id).replace('avatar','avatar').replace('<div','<div id="detailAvatar"');
+  document.getElementById('detailName').textContent = displayName(id);
+  let dates = lifespan(id);
+  if(p.birthPlace) dates += (dates?' &middot; born ':'Born ') + p.birthPlace;
+  document.getElementById('detailDates').innerHTML = dates || '<span class="empty-note">No dates on record</span>';
+
+  const facts = (p.facts||[]).filter(f=>f.place || f.date).map(f=>{
+    const bits = [f.place, f.date].filter(Boolean);
+    return `<li>${bits.join(' &middot; ')}</li>`;
+  }).join('');
+  document.getElementById('detailFacts').innerHTML = facts;
+
+  const parents = getParents(id);
+  document.getElementById('detailParents').innerHTML = parents.length
+    ? parents.map(personChip).join('') : '<div class="empty-note">None on record</div>';
+
+  const spouses = getSpouses(id);
+  document.getElementById('detailSpouses').innerHTML = spouses.length
+    ? spouses.map(personChip).join('') : '<div class="empty-note">None on record</div>';
+
+  const children = getChildren(id);
+  document.getElementById('detailChildren').innerHTML = children.length
+    ? children.map(personChip).join('') : '<div class="empty-note">None on record</div>';
+
+  const siblings = getSiblings(id);
+  document.getElementById('detailSiblings').innerHTML = siblings.length
+    ? siblings.map(personChip).join('') : '<div class="empty-note">None on record</div>';
+
+  wireChips(document.getElementById('detailPanel'));
+  document.getElementById('detailPanel').scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+document.getElementById('detailMakeYou').addEventListener('click', ()=>{
+  if(!detailId) return;
+  setYou(detailId);
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+document.getElementById('detailRelate').addEventListener('click', ()=>{
+  if(!detailId) return;
+  setTarget(detailId);
+});
+
+/* ---------------- Set you / target ---------------- */
+function setYou(id){
+  youId = id;
+  document.getElementById('youInput').value = '';
+  renderSelected(document.getElementById('youSelected'), id);
+  renderRelationship();
+}
+function setTarget(id){
+  targetId = id;
+  document.getElementById('targetInput').value = '';
+  renderSelected(document.getElementById('targetSelected'), id);
+  renderRelationship();
+}
+
+setupPicker(document.getElementById('youInput'), document.getElementById('youDropdown'), setYou);
+setupPicker(document.getElementById('targetInput'), document.getElementById('targetDropdown'), setTarget);
+
+/* ---------------- Directory ---------------- */
+function renderDirectory(filter){
+  const q = (filter||'').trim().toLowerCase();
+  const listEl = document.getElementById('directoryList');
+  const sorted = ALL_IDS.slice().sort((a,b)=>{
+    const A = INDI[a], B = INDI[b];
+    const as = (A.surname||A.given||'zzz').toLowerCase();
+    const bs = (B.surname||B.given||'zzz').toLowerCase();
+    if(as!==bs) return as<bs?-1:1;
+    const ag = (A.given||'').toLowerCase(), bg=(B.given||'').toLowerCase();
+    return ag<bg?-1:ag>bg?1:0;
+  });
+  const filtered = q ? sorted.filter(id=>displayName(id).toLowerCase().includes(q)) : sorted;
+  document.getElementById('dirCount').textContent = filtered.length;
+
+  let html = '';
+  let lastLetter = '';
+  filtered.forEach(id=>{
+    const p = INDI[id];
+    const letter = ((p.surname||p.given||'?')[0]||'?').toUpperCase();
+    if(letter !== lastLetter && !q){
+      html += `<div class="dir-letter">${letter}</div>`;
+      lastLetter = letter;
+    }
+    html += `<div class="dir-item" data-id="${id}">
+      ${avatarHTML(id)}
+      <span class="diname">${displayName(id)}</span>
+      <span class="diyears">${lifespan(id)}</span>
+    </div>`;
+  });
+  listEl.innerHTML = html || '<div class="dropdown-empty">No one matches that filter</div>';
+  listEl.querySelectorAll('.dir-item').forEach(el=>{
+    el.addEventListener('click', ()=> showDetail(el.dataset.id));
+  });
+}
+document.getElementById('dirSearch').addEventListener('input', (e)=>renderDirectory(e.target.value));
+
+/* ---------------- Init ---------------- */
+document.getElementById('peopleCount').textContent = ALL_IDS.length;
+renderDirectory('');
+setYou(defaultYou);
+</script>
+</body>
+</html>
