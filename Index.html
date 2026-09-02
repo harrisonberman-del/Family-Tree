@@ -358,69 +358,114 @@
   .dir-item .diyears{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-faint);}
 
   /* ---------- Tree tab ---------- */
-  .tree-toolbar{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; flex-wrap:wrap;}
-  .tree-toolbar .picker{flex:1; min-width:220px;}
-  .tree-controls{display:flex; gap:6px; align-items:center; flex-wrap:wrap;}
-  .tz-btn{
-    font-family:'IBM Plex Mono',monospace; font-size:13px;
-    height:38px; min-width:38px; padding:0 10px;
-    border:1px solid var(--ink); background:#fffdf6; color:var(--ink);
-    cursor:pointer; display:flex; align-items:center; justify-content:center;
-  }
-  .tz-btn:hover{background:var(--paper-deep);}
-  .tz-btn.solid{background:var(--ink); color:var(--paper);}
-  .tz-btn.solid:hover{background:var(--rust-deep); border-color:var(--rust-deep);}
-  .tree-breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:8px;}
+  .tree-toolbar{display:flex; gap:10px; align-items:flex-end; margin-bottom:10px; flex-wrap:wrap;}
+  .tree-toolbar .picker{flex:1; min-width:240px;}
+  .tree-breadcrumb{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);}
   .tree-breadcrumb b{color:var(--ink);}
-  .tree-hint{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint); margin-bottom:10px;}
+  .tree-hint{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-faint); margin:6px 0 12px;}
 
   .tree-stage{
     position:relative;
-    height:min(72vh, 640px);
-    border:1px solid var(--ink);
+    height:min(74vh, 660px);
+    border-radius:16px;
+    border:1px solid #ddd2ae;
     background:
-      linear-gradient(rgba(195,180,138,0.16) 1px, transparent 1px) 0 0 / 22px 22px,
-      linear-gradient(90deg, rgba(195,180,138,0.16) 1px, transparent 1px) 0 0 / 22px 22px,
-      #efe8d2;
+      radial-gradient(circle, rgba(31,42,52,0.055) 1px, transparent 1.5px) 0 0 / 24px 24px,
+      #fbf8f0;
     overflow:hidden;
     cursor:grab;
     touch-action:none;
     user-select:none;
+    box-shadow:inset 0 2px 10px rgba(31,42,52,0.05);
   }
   .tree-stage.grabbing{cursor:grabbing;}
-  .tree-world{position:absolute; top:0; left:0; transform-origin:0 0;}
-  .tree-world svg{position:absolute; top:0; left:0; overflow:visible; pointer-events:none;}
-  .tree-world svg line{stroke:#b0a074; stroke-width:2; stroke-linecap:round;}
+  .tree-world{position:absolute; top:0; left:0; transform-origin:0 0; will-change:transform;}
+
+  .tlines{position:absolute; top:0; left:0;}
+  .tseg{
+    position:absolute;
+    background:#d9cda6;
+    border-radius:2px;
+    transition:left .45s cubic-bezier(.22,.61,.36,1), top .45s cubic-bezier(.22,.61,.36,1),
+               width .45s cubic-bezier(.22,.61,.36,1), height .45s cubic-bezier(.22,.61,.36,1),
+               opacity .3s ease;
+  }
+  .tseg.enter{opacity:0;}
+  .tseg.exit{opacity:0;}
 
   .tnode{
     position:absolute;
     display:flex; align-items:center; gap:9px;
-    background:#fffdf6;
-    border:1px solid var(--card-edge);
-    padding:0 12px 0 8px;
+    background:#ffffff;
+    border:1px solid #e6ddc2;
+    border-radius:12px;
+    padding:0 12px 0 9px;
     text-align:left;
     cursor:pointer;
-    box-shadow:0 1px 2px rgba(31,42,52,0.08);
-    overflow:hidden;
+    box-shadow:0 1px 3px rgba(31,42,52,0.08);
+    transition:left .45s cubic-bezier(.22,.61,.36,1), top .45s cubic-bezier(.22,.61,.36,1),
+               box-shadow .2s ease, border-color .2s ease, opacity .28s ease, transform .28s ease;
   }
-  .tnode:hover{border-color:var(--rust); z-index:5;}
-  .tnode.is-focus{border:2px solid var(--rust-deep); background:var(--card); box-shadow:0 4px 14px rgba(168,90,40,0.25); z-index:6;}
+  .tnode:hover{border-color:var(--rust); box-shadow:0 4px 14px rgba(31,42,52,0.14); z-index:6;}
+  .tnode.is-focus{
+    border:2px solid var(--rust-deep);
+    box-shadow:0 4px 16px rgba(168,90,40,0.28);
+    z-index:7;
+  }
+  .tnode.enter{opacity:0; transform:scale(.82);}
+  .tnode.exit{opacity:0; transform:scale(.82); pointer-events:none;}
   .tn-av{
-    width:32px; height:32px; border-radius:50%; flex:none;
+    width:34px; height:34px; border-radius:50%; flex:none;
     display:flex; align-items:center; justify-content:center;
     color:#fff; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600;
   }
   .tnode.m .tn-av{background:var(--teal);}
   .tnode.f .tn-av{background:var(--rust);}
   .tnode.u .tn-av{background:var(--ink-faint);}
-  .tn-body{display:flex; flex-direction:column; min-width:0; line-height:1.15;}
+  .tn-body{display:flex; flex-direction:column; min-width:0; line-height:1.18;}
   .tn-name{font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   .tn-years{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--ink-faint);}
-  .tn-gen{
-    position:absolute; top:3px; right:6px;
-    font-family:'IBM Plex Mono',monospace; font-size:8.5px; color:var(--brass);
-    opacity:0.7;
+
+  .tbadge{
+    position:absolute; left:50%;
+    width:24px; height:24px;
+    margin-left:-12px;
+    border-radius:50%;
+    background:#fff;
+    border:1.5px solid #cfc19a;
+    color:var(--ink-soft);
+    font-family:'IBM Plex Mono',monospace; font-size:10px; font-weight:600;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 1px 4px rgba(31,42,52,0.15);
+    transition:background .15s, border-color .15s, color .15s, transform .15s;
+    z-index:8;
+    line-height:1;
+    padding:0;
   }
+  .tbadge:hover{background:var(--rust-deep); border-color:var(--rust-deep); color:#fff; transform:scale(1.12);}
+  .tbadge.up{top:-12px;}
+  .tbadge.down{bottom:-12px;}
+  .tbadge.open{background:var(--ink); border-color:var(--ink); color:var(--paper);}
+  .tbadge.open:hover{background:var(--rust-deep); border-color:var(--rust-deep);}
+
+  .tree-fabs{
+    position:absolute; right:14px; bottom:14px;
+    display:flex; flex-direction:column; gap:8px;
+    z-index:20;
+  }
+  .fab{
+    width:42px; height:42px; border-radius:50%;
+    background:#fff; border:1px solid #ddd2ae;
+    box-shadow:0 3px 10px rgba(31,42,52,0.18);
+    font-family:'IBM Plex Mono',monospace; font-size:16px; color:var(--ink);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    transition:background .15s, transform .1s;
+  }
+  .fab:hover{background:var(--card);}
+  .fab:active{transform:scale(.94);}
+  .fab svg{width:19px; height:19px;}
 
   .tree-empty-note{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
@@ -499,21 +544,28 @@
       <div class="panel-label">FAMILY TREE</div>
       <div class="tree-toolbar">
         <div class="picker" id="treePicker">
-          <div class="picker-title">CENTER TREE ON</div>
+          <div class="picker-title">FIND SOMEONE IN THE TREE</div>
           <input type="text" id="treeInput" placeholder="Search a name…" autocomplete="off">
           <div class="dropdown" id="treeDropdown"></div>
         </div>
-        <div class="tree-controls">
-          <button class="tz-btn" id="tzOut" aria-label="Zoom out">&minus;</button>
-          <button class="tz-btn" id="tzIn" aria-label="Zoom in">+</button>
-          <button class="tz-btn" id="tzFocus">Recenter</button>
-          <button class="tz-btn solid" id="tzFit">Fit all</button>
-        </div>
+        <div class="tree-breadcrumb">Rooted on <b id="treeFocusName">—</b></div>
       </div>
-      <div class="tree-breadcrumb">Centered on <b id="treeFocusName">—</b></div>
-      <div class="tree-hint">Drag to pan &middot; scroll or pinch to zoom &middot; click a card to travel to that person &middot; click the highlighted card for full details</div>
+      <div class="tree-hint">Drag to pan &middot; scroll or pinch to zoom &middot; use the &#9650;&#9660; buttons on a card to open or close that branch &middot; click a card for details</div>
       <div class="tree-stage" id="treeStage">
-        <div class="tree-world" id="treeWorld"></div>
+        <div class="tree-world" id="treeWorld">
+          <div class="tlines" id="treeLines"></div>
+          <div id="treeNodes"></div>
+        </div>
+        <div class="tree-fabs">
+          <button class="fab" id="tzIn" aria-label="Zoom in">+</button>
+          <button class="fab" id="tzOut" aria-label="Zoom out">&minus;</button>
+          <button class="fab" id="tzFocus" aria-label="Recenter on root" title="Recenter">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/></svg>
+          </button>
+          <button class="fab" id="tzFit" aria-label="Fit whole tree" title="Fit all">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1093,104 +1145,138 @@ function renderDirectory(filter){
 }
 document.getElementById('dirSearch').addEventListener('input', (e)=>renderDirectory(e.target.value));
 
-/* ---------------- Family tree: laid-out pan/zoom canvas ---------------- */
-const NW = 178, NH = 60, HGAP = 30, VGAP = 78;
-const ROW_PITCH = NH + VGAP, COUPLE_GAP = 18, PAD = 80;
+/* ---------------- Family tree: animated expand/collapse canvas ---------------- */
+const NW = 182, NH = 62, HGAP = 34, VGAP = 84;
+const ROW_PITCH = NH + VGAP, COUPLE_GAP = 22, PAD = 100;
 
-let TREE = { pos:{}, worldW:0, worldH:0, focusRendered:null, everRendered:false };
+let TREE = { pos:{}, roles:{}, worldW:0, worldH:0, focusRendered:null, everRendered:false };
 let treeInited = false;
 let treeTx = 0, treeTy = 0, treeScale = 0.85;
+let expandedUp = new Set(), expandedDown = new Set();
+const nodeEls = new Map();   // person id -> element
+const segEls = new Map();    // segment key -> element
 
-/* Build absolute positions for focus's ancestors, descendants, siblings, spouses */
+function hasParentsData(id){ return getParents(id).length > 0; }
+function childCount(id){ return getChildren(id).length; }
+
+function initExpansion(focusId){
+  expandedUp = new Set();
+  expandedDown = new Set();
+  expandedUp.add(focusId);
+  getParents(focusId).forEach(p => expandedUp.add(p));
+  expandedDown.add(focusId);
+  getChildren(focusId).forEach(c => expandedDown.add(c));
+}
+
+/* Build positions for the currently expanded portion of the tree */
 function buildLayout(focusId){
-  const pos = {};
+  const pos = {}, roles = {};
 
-  /* ---- DESCENDANTS (focus downward) ---- */
+  /* ---- descendant subtrees (recurse only where expanded) ---- */
   let cursor = 0;
   const dseen = new Set();
-  function layoutDesc(id, depth){
+  function layoutDesc(id, depth, baseRole){
     if(dseen.has(id)) return pos[id] ? pos[id].cx : cursor;
     dseen.add(id);
     const y = depth * ROW_PITCH;
-    const fams = getSpouseFamilies(id);
+    const open = expandedDown.has(id);
     let kids = [];
-    fams.forEach(f => (f.chil||[]).forEach(c => { if(INDI[c] && !kids.includes(c)) kids.push(c); }));
-    kids = sortByBirth(kids);
-    const spouse = getSpouses(id)[0] || null;
+    if(open){
+      getSpouseFamilies(id).forEach(f => (f.chil||[]).forEach(c => {
+        if(INDI[c] && !kids.includes(c)) kids.push(c);
+      }));
+      kids = sortByBirth(kids);
+    }
+    const spouse = (open || id === focusId) ? (getSpouses(id)[0] || null) : null;
+    const role = id === focusId ? 'focus' : baseRole;
 
     if(kids.length === 0){
       const leftCx = cursor + NW/2;
-      pos[id] = { cx: leftCx, cy: y };
+      pos[id] = { cx:leftCx, cy:y }; roles[id] = role;
       let center = leftCx;
       if(spouse && !pos[spouse]){
         const rightCx = leftCx + NW + COUPLE_GAP;
-        pos[spouse] = { cx: rightCx, cy: y };
-        center = (leftCx + rightCx) / 2;
+        pos[spouse] = { cx:rightCx, cy:y }; roles[spouse] = 'spouse';
+        center = (leftCx + rightCx)/2;
         cursor = rightCx + NW/2 + HGAP;
       } else {
         cursor = leftCx + NW/2 + HGAP;
       }
       return center;
+    }
+    const childCenters = kids.map(k => layoutDesc(k, depth+1, 'desc'));
+    const center = (childCenters[0] + childCenters[childCenters.length-1]) / 2;
+    if(spouse && !pos[spouse]){
+      pos[id] = { cx: center - (NW+COUPLE_GAP)/2, cy:y }; roles[id] = role;
+      pos[spouse] = { cx: center + (NW+COUPLE_GAP)/2, cy:y }; roles[spouse] = 'spouse';
     } else {
-      const childCenters = kids.map(k => layoutDesc(k, depth+1));
-      const center = (childCenters[0] + childCenters[childCenters.length-1]) / 2;
-      if(spouse && !pos[spouse]){
-        pos[id] = { cx: center - (NW+COUPLE_GAP)/2, cy: y };
-        pos[spouse] = { cx: center + (NW+COUPLE_GAP)/2, cy: y };
+      pos[id] = { cx:center, cy:y }; roles[id] = role;
+    }
+    return center;
+  }
+  layoutDesc(focusId, 0, 'focus');
+
+  /* ---- siblings (only when focus's parents are open) ---- */
+  if(expandedUp.has(focusId) && getParents(focusId).length){
+    const spouse0 = getSpouses(focusId)[0];
+    let minX0 = pos[focusId].cx - NW/2;
+    let maxX0 = pos[focusId].cx + NW/2;
+    if(spouse0 && pos[spouse0]){
+      minX0 = Math.min(minX0, pos[spouse0].cx - NW/2);
+      maxX0 = Math.max(maxX0, pos[spouse0].cx + NW/2);
+    }
+    const sibs = sortByBirth(getSiblings(focusId));
+    const flankLeft = [], flankRight = [];
+    sibs.forEach(s => {
+      if(expandedDown.has(s)){
+        // expanded sibling gets a full subtree packed to the right
+        layoutDesc(s, 0, 'sib');
+        if(roles[s]) roles[s] = 'sib';
       } else {
-        pos[id] = { cx: center, cy: y };
+        (flankLeft.length <= flankRight.length ? flankLeft : flankRight).push(s);
       }
-      return center;
-    }
+    });
+    let lx = minX0 - HGAP - NW/2;
+    flankLeft.forEach(s => { if(!pos[s]){ pos[s] = {cx:lx, cy:0}; roles[s] = 'sib'; lx -= (NW+HGAP); } });
+    let rx = maxX0 + HGAP + NW/2;
+    flankRight.forEach(s => { if(!pos[s]){ pos[s] = {cx:rx, cy:0}; roles[s] = 'sib'; rx += (NW+HGAP); } });
   }
-  layoutDesc(focusId, 0);
 
-  /* ---- SIBLINGS (focus generation, flanking the descendant band) ---- */
-  const focusCx = pos[focusId].cx;
-  const spouse0 = getSpouses(focusId)[0];
-  let minX0 = pos[focusId].cx - NW/2;
-  let maxX0 = pos[focusId].cx + NW/2;
-  if(spouse0 && pos[spouse0]){
-    minX0 = Math.min(minX0, pos[spouse0].cx - NW/2);
-    maxX0 = Math.max(maxX0, pos[spouse0].cx + NW/2);
-  }
-  const sibs = sortByBirth(getSiblings(focusId));
-  const leftSibs = [], rightSibs = [];
-  sibs.forEach((s,i) => (i % 2 === 0 ? leftSibs : rightSibs).push(s));
-  let lx = minX0 - HGAP - NW/2;
-  leftSibs.forEach(s => { if(!pos[s]){ pos[s] = { cx: lx, cy: 0 }; lx -= (NW + HGAP); } });
-  let rx = maxX0 + HGAP + NW/2;
-  rightSibs.forEach(s => { if(!pos[s]){ pos[s] = { cx: rx, cy: 0 }; rx += (NW + HGAP); } });
-
-  /* ---- ANCESTORS (focus upward) ---- */
+  /* ---- ancestor towers (focus's and, if opened, the focus spouse's) ---- */
   let ancCursor = 0;
-  const ancTmp = {};
-  const aseen = new Set();
-  function layoutAnc(id, depth){
-    if(aseen.has(id)) return ancTmp[id] ? ancTmp[id].x : ancCursor;
-    aseen.add(id);
-    const ps = getParents(id);
-    let x;
-    if(ps.length === 0){
-      x = ancCursor; ancCursor += (NW + HGAP);
-    } else {
-      const cs = ps.map(p => layoutAnc(p, depth+1));
-      x = cs.reduce((a,b)=>a+b,0) / cs.length;
+  function ancTower(anchorId){
+    if(!expandedUp.has(anchorId)) return;
+    const rootParents = getParents(anchorId);
+    if(!rootParents.length || !pos[anchorId]) return;
+    const tmp = {}, seen = new Set();
+    function layoutAnc(id, depth){
+      if(seen.has(id)) return tmp[id] ? tmp[id].x : ancCursor;
+      seen.add(id);
+      const ps = expandedUp.has(id) ? getParents(id) : [];
+      let x;
+      if(ps.length === 0){ x = ancCursor; ancCursor += (NW+HGAP); }
+      else {
+        const cs = ps.map(p => layoutAnc(p, depth+1));
+        x = cs.reduce((a,b)=>a+b,0)/cs.length;
+      }
+      if(depth >= 1) tmp[id] = { x, depth };
+      return x;
     }
-    if(depth >= 1) ancTmp[id] = { x, depth };
-    return x;
-  }
-  const fparents = getParents(focusId);
-  if(fparents.length){
-    const pcs = fparents.map(p => layoutAnc(p, 1));
-    const ancAnchorX = pcs.reduce((a,b)=>a+b,0) / pcs.length;
-    const shift = pos[focusId].cx - ancAnchorX;
-    Object.keys(ancTmp).forEach(id => {
-      if(!pos[id]) pos[id] = { cx: ancTmp[id].x + shift, cy: -ancTmp[id].depth * ROW_PITCH };
+    const pcs = rootParents.map(p => layoutAnc(p, 1));
+    const anchorX = pcs.reduce((a,b)=>a+b,0)/pcs.length;
+    const shift = pos[anchorId].cx - anchorX;
+    Object.keys(tmp).forEach(id => {
+      if(!pos[id]){
+        pos[id] = { cx: tmp[id].x + shift, cy: -tmp[id].depth * ROW_PITCH };
+        roles[id] = 'anc';
+      }
     });
   }
+  ancTower(focusId);
+  const fsp = getSpouses(focusId)[0];
+  if(fsp && pos[fsp]) ancTower(fsp);
 
-  /* ---- de-overlap each row (push right, keep couples close) ---- */
+  /* ---- de-overlap per row ---- */
   const rows = {};
   Object.keys(pos).forEach(id => {
     const k = Math.round(pos[id].cy);
@@ -1200,16 +1286,15 @@ function buildLayout(focusId){
     ids.sort((a,b) => pos[a].cx - pos[b].cx);
     for(let i=1; i<ids.length; i++){
       const prev = pos[ids[i-1]], cur = pos[ids[i]];
-      const needed = areSpouses(ids[i-1], ids[i]) ? (NW + COUPLE_GAP) : (NW + HGAP);
-      const gap = cur.cx - prev.cx;
-      if(gap < needed){
-        const delta = needed - gap;
+      const needed = areSpouses(ids[i-1], ids[i]) ? (NW+COUPLE_GAP) : (NW+HGAP);
+      if(cur.cx - prev.cx < needed){
+        const delta = needed - (cur.cx - prev.cx);
         for(let j=i; j<ids.length; j++) pos[ids[j]].cx += delta;
       }
     }
   });
 
-  /* ---- normalize to positive coords + padding ---- */
+  /* ---- normalize ---- */
   let minX=Infinity, maxX=-Infinity, minY=Infinity, maxY=-Infinity;
   Object.values(pos).forEach(p => {
     minX = Math.min(minX, p.cx - NW/2); maxX = Math.max(maxX, p.cx + NW/2);
@@ -1217,109 +1302,196 @@ function buildLayout(focusId){
   });
   const offX = PAD - minX, offY = PAD - minY;
   Object.values(pos).forEach(p => { p.cx += offX; p.cy += offY; });
-  const worldW = (maxX - minX) + 2*PAD;
-  const worldH = (maxY - minY) + 2*PAD;
-
-  return { pos, worldW, worldH };
+  return { pos, roles, worldW:(maxX-minX)+2*PAD, worldH:(maxY-minY)+2*PAD };
 }
 
-function buildConnectors(pos){
-  const seg = (x1,y1,x2,y2) => `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"></line>`;
-  let out = '';
-  Object.values(FAM).forEach(f => {
+/* connector segments as animatable divs, keyed for reconciliation */
+function buildSegments(pos){
+  const segs = [];
+  const T = 2;
+  const H = (key,x,y,w) => segs.push({key, x, y:y-T/2, w, h:T});
+  const V = (key,x,y,h) => segs.push({key, x:x-T/2, y, w:T, h});
+  Object.keys(FAM).forEach(fid => {
+    const f = FAM[fid];
     const parents = [f.husb, f.wife].filter(p => p && pos[p]);
     const kids = (f.chil||[]).filter(c => pos[c]);
-    // couple bar
     if(parents.length === 2){
       const a = pos[parents[0]], b = pos[parents[1]];
-      if(Math.abs(a.cy - b.cy) < 1){
-        const left = Math.min(a.cx, b.cx) + NW/2;
-        const right = Math.max(a.cx, b.cx) - NW/2;
-        if(right > left) out += seg(left, a.cy, right, a.cy);
+      if(Math.abs(a.cy-b.cy) < 1){
+        const left = Math.min(a.cx,b.cx) + NW/2;
+        const right = Math.max(a.cx,b.cx) - NW/2;
+        if(right > left) H('c:'+fid, left, a.cy, right-left);
       }
     }
-    // parent -> children bus
     if(parents.length && kids.length){
       let ax, ay;
       if(parents.length === 2 && Math.abs(pos[parents[0]].cy - pos[parents[1]].cy) < 1){
-        ax = (pos[parents[0]].cx + pos[parents[1]].cx) / 2;
+        ax = (pos[parents[0]].cx + pos[parents[1]].cx)/2;
         ay = pos[parents[0]].cy + NH/2;
       } else {
         ax = pos[parents[0]].cx;
         ay = pos[parents[0]].cy + NH/2;
       }
       const childTop = Math.min.apply(null, kids.map(c => pos[c].cy - NH/2));
-      const busY = ay + (childTop - ay) / 2;
-      out += seg(ax, ay, ax, busY);
+      const busY = ay + (childTop - ay)/2;
+      V('d:'+fid, ax, Math.min(ay,busY), Math.abs(busY-ay));
       const xs = kids.map(c => pos[c].cx).concat(ax);
-      out += seg(Math.min.apply(null, xs), busY, Math.max.apply(null, xs), busY);
-      kids.forEach(c => out += seg(pos[c].cx, busY, pos[c].cx, pos[c].cy - NH/2));
+      const bx1 = Math.min.apply(null, xs), bx2 = Math.max.apply(null, xs);
+      if(bx2 > bx1) H('b:'+fid, bx1, busY, bx2-bx1);
+      kids.forEach(c => V('k:'+fid+':'+c, pos[c].cx, busY, (pos[c].cy - NH/2) - busY));
     }
   });
+  return segs;
+}
+
+function badgeHTML(id, roles){
+  const role = roles[id];
+  let out = '';
+  const upEligible = (role==='focus' || role==='anc' || (role==='spouse' && getSpouses(treeFocusId).includes(id)));
+  if(upEligible && hasParentsData(id)){
+    const open = expandedUp.has(id);
+    out += `<button class="tbadge up ${open?'open':''}" data-id="${id}" data-dir="up"
+      aria-label="${open?'Hide':'Show'} parents of ${displayName(id)}">${open ? '&#9650;' : '&#9650;'}</button>`;
+  }
+  const downEligible = (role==='focus' || role==='sib' || role==='desc');
+  const n = childCount(id);
+  if(downEligible && n > 0){
+    const open = expandedDown.has(id);
+    out += `<button class="tbadge down ${open?'open':''}" data-id="${id}" data-dir="down"
+      aria-label="${open?'Hide':'Show'} children of ${displayName(id)}">${open ? '&#9660;' : n}</button>`;
+  }
   return out;
 }
 
-function treeNodeHTML(id, focusId){
-  const p = pos_(id);
-  const gen = ''; // reserved
-  return `<button class="tnode ${sexClass(id)} ${id===focusId?'is-focus':''}" data-id="${id}"
-     style="left:${p.cx - NW/2}px; top:${p.cy - NH/2}px; width:${NW}px; height:${NH}px;">
-     <span class="tn-av">${initials(id)}</span>
-     <span class="tn-body">
-       <span class="tn-name">${displayName(id)}</span>
-       <span class="tn-years">${lifespan(id) || '—'}</span>
-     </span>
-   </button>`;
+function nodeInnerHTML(id, roles){
+  return `<span class="tn-av">${initials(id)}</span>
+    <span class="tn-body">
+      <span class="tn-name">${displayName(id)}</span>
+      <span class="tn-years">${lifespan(id) || '&mdash;'}</span>
+    </span>${badgeHTML(id, roles)}`;
 }
-function pos_(id){ return TREE.pos[id]; }
 
-function renderTree(focusId, opts){
-  opts = opts || {};
-  treeFocusId = focusId;
-  const L = buildLayout(focusId);
-  TREE.pos = L.pos;
-  TREE.worldW = L.worldW;
-  TREE.worldH = L.worldH;
-  TREE.focusRendered = focusId;
+function wireNode(el){
+  el.addEventListener('pointerdown', e => e.stopPropagation());
+  el.addEventListener('click', e => {
+    const badge = e.target.closest('.tbadge');
+    if(badge){
+      e.stopPropagation();
+      toggleBranch(badge.dataset.id, badge.dataset.dir);
+      return;
+    }
+    e.stopPropagation();
+    showDetail(el.dataset.id);
+  });
+}
 
-  document.getElementById('treeFocusName').textContent = displayName(focusId);
+function toggleBranch(id, dir){
+  const set = dir === 'up' ? expandedUp : expandedDown;
+  if(set.has(id)) set.delete(id); else set.add(id);
+  paintTree(id);
+}
+
+/* reconcile DOM against a fresh layout; anchorId stays fixed on screen */
+function paintTree(anchorId){
+  const prevAnchor = anchorId && TREE.pos[anchorId] ? {cx:TREE.pos[anchorId].cx, cy:TREE.pos[anchorId].cy} : null;
+
+  const L = buildLayout(treeFocusId);
+  TREE.pos = L.pos; TREE.roles = L.roles;
+  TREE.worldW = L.worldW; TREE.worldH = L.worldH;
+  TREE.focusRendered = treeFocusId;
+
+  if(prevAnchor && L.pos[anchorId]){
+    treeTx += (prevAnchor.cx - L.pos[anchorId].cx) * treeScale;
+    treeTy += (prevAnchor.cy - L.pos[anchorId].cy) * treeScale;
+    applyTreeTransform(false);
+  }
 
   const world = document.getElementById('treeWorld');
   world.style.width = L.worldW + 'px';
   world.style.height = L.worldH + 'px';
 
-  const ids = Object.keys(L.pos);
-  const svg = `<svg width="${L.worldW}" height="${L.worldH}" viewBox="0 0 ${L.worldW} ${L.worldH}">${buildConnectors(L.pos)}</svg>`;
-  const cards = ids.map(id => treeNodeHTML(id, focusId)).join('');
-  world.innerHTML = svg + cards;
-
-  world.querySelectorAll('.tnode').forEach(el => {
-    el.addEventListener('pointerdown', e => e.stopPropagation());
-    el.addEventListener('click', e => {
-      e.stopPropagation();
-      const id = el.dataset.id;
-      if(id === treeFocusId){
-        showDetail(id);
-      } else {
-        renderTree(id, {});
-        centerOnFocus(true);
-      }
-    });
+  /* nodes */
+  const nodesHost = document.getElementById('treeNodes');
+  const seenIds = new Set(Object.keys(L.pos));
+  seenIds.forEach(id => {
+    const p = L.pos[id];
+    let el = nodeEls.get(id);
+    if(!el){
+      el = document.createElement('button');
+      el.dataset.id = id;
+      el.style.width = NW+'px'; el.style.height = NH+'px';
+      el.style.left = (p.cx - NW/2)+'px';
+      el.style.top = (p.cy - NH/2)+'px';
+      el.className = 'tnode ' + sexClass(id) + (id===treeFocusId?' is-focus':'') + ' enter';
+      el.innerHTML = nodeInnerHTML(id, L.roles);
+      wireNode(el);
+      nodesHost.appendChild(el);
+      nodeEls.set(id, el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter')));
+    } else {
+      el.classList.remove('exit');
+      el.style.left = (p.cx - NW/2)+'px';
+      el.style.top = (p.cy - NH/2)+'px';
+      el.className = el.className.replace(' is-focus','');
+      if(id===treeFocusId) el.className += ' is-focus';
+      el.innerHTML = nodeInnerHTML(id, L.roles);
+    }
+  });
+  nodeEls.forEach((el, id) => {
+    if(!seenIds.has(id)){
+      el.classList.add('exit');
+      setTimeout(() => { if(el.classList.contains('exit')){ el.remove(); nodeEls.delete(id); } }, 300);
+    }
   });
 
-  if(opts.initial){
-    const stage = document.getElementById('treeStage');
-    const sh = stage.clientHeight || 560;
-    const fitH = (sh * 0.9) / (3.4 * ROW_PITCH);
-    treeScale = Math.max(0.5, Math.min(1, fitH));
-    centerOnFocus(false);
-    TREE.everRendered = true;
-  } else if(!opts.keepView){
-    centerOnFocus(true);
-  }
+  /* connector segments */
+  const linesHost = document.getElementById('treeLines');
+  const segs = buildSegments(L.pos);
+  const seenKeys = new Set();
+  segs.forEach(s => {
+    seenKeys.add(s.key);
+    let el = segEls.get(s.key);
+    if(!el){
+      el = document.createElement('div');
+      el.className = 'tseg enter';
+      el.style.left = s.x+'px'; el.style.top = s.y+'px';
+      el.style.width = s.w+'px'; el.style.height = s.h+'px';
+      linesHost.appendChild(el);
+      segEls.set(s.key, el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter')));
+    } else {
+      el.classList.remove('exit');
+      el.style.left = s.x+'px'; el.style.top = s.y+'px';
+      el.style.width = s.w+'px'; el.style.height = s.h+'px';
+    }
+  });
+  segEls.forEach((el, key) => {
+    if(!seenKeys.has(key)){
+      el.classList.add('exit');
+      setTimeout(() => { if(el.classList.contains('exit')){ el.remove(); segEls.delete(key); } }, 300);
+    }
+  });
+
+  document.getElementById('treeFocusName').textContent = displayName(treeFocusId);
 }
 
-/* ---- pan / zoom interaction ---- */
+function renderTree(focusId, opts){
+  opts = opts || {};
+  treeFocusId = focusId;
+  initExpansion(focusId);
+  nodeEls.forEach(el => el.remove()); nodeEls.clear();
+  segEls.forEach(el => el.remove()); segEls.clear();
+  paintTree(null);
+
+  const stage = document.getElementById('treeStage');
+  const sh = stage.clientHeight || 560;
+  const fitH = (sh * 0.9) / (3.4 * ROW_PITCH);
+  treeScale = Math.max(0.5, Math.min(1, fitH));
+  centerOnFocus(!!opts.animate);
+  TREE.everRendered = true;
+}
+
+/* ---- pan / zoom ---- */
 function applyTreeTransform(animate){
   const world = document.getElementById('treeWorld');
   world.style.transition = animate ? 'transform .45s cubic-bezier(.22,.61,.36,1)' : 'none';
@@ -1327,96 +1499,83 @@ function applyTreeTransform(animate){
 }
 function centerOnFocus(animate){
   const stage = document.getElementById('treeStage');
-  const sw = stage.clientWidth, sh = stage.clientHeight;
   const f = TREE.pos[treeFocusId];
   if(!f) return;
-  treeTx = sw/2 - f.cx * treeScale;
-  treeTy = sh/2 - f.cy * treeScale;
+  treeTx = stage.clientWidth/2 - f.cx * treeScale;
+  treeTy = stage.clientHeight/2 - f.cy * treeScale;
   applyTreeTransform(animate);
 }
 function fitTree(){
   const stage = document.getElementById('treeStage');
   const sw = stage.clientWidth, sh = stage.clientHeight;
   const s = Math.min(sw / TREE.worldW, sh / TREE.worldH) * 0.94;
-  treeScale = Math.max(0.15, Math.min(1.1, s));
-  treeTx = (sw - TREE.worldW * treeScale) / 2;
-  treeTy = (sh - TREE.worldH * treeScale) / 2;
+  treeScale = Math.max(0.12, Math.min(1.1, s));
+  treeTx = (sw - TREE.worldW * treeScale)/2;
+  treeTy = (sh - TREE.worldH * treeScale)/2;
   applyTreeTransform(true);
 }
 function zoomAround(px, py, factor){
-  const newScale = Math.max(0.15, Math.min(2.4, treeScale * factor));
-  const wx = (px - treeTx) / treeScale;
-  const wy = (py - treeTy) / treeScale;
+  const newScale = Math.max(0.12, Math.min(2.4, treeScale * factor));
+  const wx = (px - treeTx)/treeScale, wy = (py - treeTy)/treeScale;
   treeScale = newScale;
-  treeTx = px - wx * treeScale;
-  treeTy = py - wy * treeScale;
+  treeTx = px - wx*treeScale;
+  treeTy = py - wy*treeScale;
   applyTreeTransform(false);
 }
 function initTreeInteraction(){
   const stage = document.getElementById('treeStage');
   const pointers = new Map();
-  let panning = false, startX=0, startY=0, startTx=0, startTy=0;
-  let pinchDist = 0;
+  let panning=false, startX=0, startY=0, startTx=0, startTy=0, pinchDist=0;
 
   stage.addEventListener('pointerdown', e => {
+    if(e.target.closest('.fab')) return;
     pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if(pointers.size === 1){
       panning = true;
-      startX = e.clientX; startY = e.clientY;
-      startTx = treeTx; startTy = treeTy;
+      startX=e.clientX; startY=e.clientY; startTx=treeTx; startTy=treeTy;
       stage.classList.add('grabbing');
       stage.setPointerCapture(e.pointerId);
     } else if(pointers.size === 2){
       panning = false;
-      const pts = [...pointers.values()];
-      pinchDist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+      const pts=[...pointers.values()];
+      pinchDist = Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
     }
   });
   stage.addEventListener('pointermove', e => {
     if(!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if(pointers.size === 2){
-      const pts = [...pointers.values()];
-      const d = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      if(pinchDist > 0){
+      const pts=[...pointers.values()];
+      const d=Math.hypot(pts[0].x-pts[1].x, pts[0].y-pts[1].y);
+      if(pinchDist>0){
         const rect = stage.getBoundingClientRect();
-        const mx = (pts[0].x + pts[1].x)/2 - rect.left;
-        const my = (pts[0].y + pts[1].y)/2 - rect.top;
-        zoomAround(mx, my, d / pinchDist);
+        zoomAround((pts[0].x+pts[1].x)/2-rect.left, (pts[0].y+pts[1].y)/2-rect.top, d/pinchDist);
       }
       pinchDist = d;
       return;
     }
     if(panning){
-      treeTx = startTx + (e.clientX - startX);
-      treeTy = startTy + (e.clientY - startY);
+      treeTx = startTx + (e.clientX-startX);
+      treeTy = startTy + (e.clientY-startY);
       applyTreeTransform(false);
     }
   });
   function endPointer(e){
     pointers.delete(e.pointerId);
     if(pointers.size < 2) pinchDist = 0;
-    if(pointers.size === 0){ panning = false; stage.classList.remove('grabbing'); }
+    if(pointers.size === 0){ panning=false; stage.classList.remove('grabbing'); }
   }
   stage.addEventListener('pointerup', endPointer);
   stage.addEventListener('pointercancel', endPointer);
-  stage.addEventListener('pointerleave', e => { if(pointers.size===0){ panning=false; stage.classList.remove('grabbing'); } });
 
   stage.addEventListener('wheel', e => {
     e.preventDefault();
     const rect = stage.getBoundingClientRect();
-    const px = e.clientX - rect.left, py = e.clientY - rect.top;
-    zoomAround(px, py, e.deltaY < 0 ? 1.12 : 1/1.12);
+    zoomAround(e.clientX-rect.left, e.clientY-rect.top, e.deltaY < 0 ? 1.12 : 1/1.12);
   }, {passive:false});
 
-  document.getElementById('tzIn').addEventListener('click', () => {
-    const stage = document.getElementById('treeStage');
-    zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1.2);
-  });
-  document.getElementById('tzOut').addEventListener('click', () => {
-    const stage = document.getElementById('treeStage');
-    zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1/1.2);
-  });
+  document.getElementById('tzIn').addEventListener('click', () => zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1.2));
+  document.getElementById('tzOut').addEventListener('click', () => zoomAround(stage.clientWidth/2, stage.clientHeight/2, 1/1.2));
   document.getElementById('tzFit').addEventListener('click', fitTree);
   document.getElementById('tzFocus').addEventListener('click', () => centerOnFocus(true));
 }
