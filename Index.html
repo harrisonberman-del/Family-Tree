@@ -51,11 +51,12 @@
   #gate.hidden{display:none;}
   .gate-card{
     background:var(--card);
-    border:1px solid var(--ink);
+    border:1px solid #ddd2ae;
+    border-radius:20px;
     max-width:380px; width:100%;
-    padding:32px 28px 28px;
+    padding:34px 30px 30px;
     text-align:center;
-    box-shadow:0 10px 30px rgba(31,42,52,0.18);
+    box-shadow:0 16px 44px rgba(31,42,52,0.22);
   }
   .gate-seal{
     width:44px;height:44px;border-radius:50%;
@@ -74,12 +75,15 @@
     width:100%;
     font-family:'Newsreader',serif;
     font-size:16px;
-    padding:10px 12px;
-    border:1px solid var(--ink);
+    padding:11px 14px;
+    border:1px solid #c9bc93;
+    border-radius:12px;
     background:#fffdf6;
     text-align:center;
     margin-bottom:12px;
+    transition:border-color .15s, box-shadow .15s;
   }
+  #gateInput:focus{outline:none; border-color:var(--rust); box-shadow:0 0 0 3px rgba(168,90,40,0.15);}
   .gate-error{
     font-family:'IBM Plex Mono',monospace;
     font-size:11.5px;
@@ -135,40 +139,41 @@
   }
   .masthead-count b{color:var(--ink);font-size:15px;}
 
-  /* ---------- Tabs ---------- */
+  /* ---------- Tabs (segmented control) ---------- */
   .tabbar{
-    display:flex;
+    display:inline-flex;
     gap:4px;
-    margin-bottom:0;
-    padding-left:4px;
+    background:var(--paper-deep);
+    border-radius:999px;
+    padding:5px;
+    margin-bottom:14px;
   }
   .tab-btn{
     font-family:'IBM Plex Mono',monospace;
     font-size:12px;
-    letter-spacing:0.03em;
-    background:var(--paper-deep);
+    letter-spacing:0.02em;
+    background:transparent;
     color:var(--ink-soft);
-    border:1px solid var(--card-edge);
-    border-bottom:none;
-    padding:10px 16px 9px;
+    border:none;
+    border-radius:999px;
+    padding:9px 18px;
     cursor:pointer;
-    position:relative;
-    top:1px;
-    clip-path: polygon(6% 0, 94% 0, 100% 100%, 0% 100%);
+    transition:background .18s ease, color .18s ease, box-shadow .18s ease;
   }
   .tab-btn:hover{color:var(--ink);}
   .tab-btn.active{
-    background:var(--card);
+    background:#fff;
     color:var(--ink);
-    border-color:var(--ink);
     font-weight:600;
-    z-index:2;
+    box-shadow:0 2px 8px rgba(31,42,52,0.14);
   }
   .tab-panels-frame{
-    border:1px solid var(--ink);
+    border:1px solid #ddd2ae;
+    border-radius:18px;
     background:var(--card);
-    padding:22px;
+    padding:24px;
     margin-bottom:22px;
+    box-shadow:0 2px 12px rgba(31,42,52,0.05);
   }
   .tab-panel{display:none;}
   .tab-panel.active{display:block;}
@@ -212,11 +217,40 @@
     width:100%;
     font-family:'Newsreader', serif;
     font-size:17px;
-    padding:10px 12px;
-    border:1px solid var(--ink);
+    padding:11px 14px;
+    border:1px solid #c9bc93;
+    border-radius:12px;
     background:#fffdf6;
     color:var(--ink);
+    transition:border-color .15s, box-shadow .15s;
   }
+  .picker input[type=text]:focus{
+    outline:none;
+    border-color:var(--rust);
+    box-shadow:0 0 0 3px rgba(168,90,40,0.15);
+  }
+  .picker-chip{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    border:1px solid #c9bc93;
+    border-radius:12px;
+    background:#fff;
+    min-height:52px;
+  }
+  .picker-chip .chip-info{flex:1; min-width:0;}
+  .chip-change{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--ink-faint);
+    background:none; border:none; cursor:pointer;
+    padding:6px 8px;
+    border-radius:8px;
+    transition:background .15s, color .15s;
+    white-space:nowrap;
+  }
+  .chip-change:hover{background:var(--paper-deep); color:var(--ink);}
   .picker-selected{
     margin-top:10px;
     display:flex;
@@ -243,18 +277,28 @@
     display:flex;align-items:center;justify-content:center;
     padding-top:30px;
   }
-  .picker-mid svg{width:26px;height:26px;opacity:0.55;}
+  .swap-btn{
+    width:44px;height:44px;border-radius:50%;
+    background:#fff;border:1px solid #ddd2ae;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    box-shadow:0 2px 8px rgba(31,42,52,0.12);
+    transition:transform .2s ease, background .15s;
+  }
+  .swap-btn:hover{background:var(--card); transform:rotate(180deg);}
+  .swap-btn svg{width:20px;height:20px;}
 
   .dropdown{
     position:absolute;
-    top:calc(100% + 2px);
+    top:calc(100% + 6px);
     left:0;right:0;
-    background:#fffdf6;
-    border:1px solid var(--ink);
-    max-height:260px;
+    background:#fff;
+    border:1px solid #ddd2ae;
+    border-radius:14px;
+    max-height:280px;
     overflow-y:auto;
     z-index:20;
-    box-shadow:0 6px 16px rgba(31,42,52,0.18);
+    box-shadow:0 10px 30px rgba(31,42,52,0.18);
   }
   .dropdown-item{
     padding:9px 12px;
@@ -276,17 +320,38 @@
   .rel-headline .rel-of{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); letter-spacing:0.03em;}
   .rel-headline .rel-term{font-family:'Fraunces',serif; font-weight:600; font-size:clamp(24px,4.4vw,34px); color:var(--rust-deep); margin-top:2px;}
 
-  .chain{display:flex; flex-direction:column; align-items:stretch; gap:0; max-width:520px; margin:0 auto;}
-  .chain-node{display:flex; align-items:center; gap:12px; padding:10px 4px; cursor:pointer; background:none; border:none; width:100%; text-align:left;}
-  .chain-node:hover .selected-name{text-decoration:underline;}
-  .chain-node .avatar{width:44px;height:44px;font-size:15px;}
-  .chain-node.endpoint{background:rgba(168,90,40,0.07); border:1px solid var(--card-edge); padding:12px 14px;}
-  .chain-node.ancestor .avatar{box-shadow:0 0 0 3px var(--card), 0 0 0 4px var(--brass);}
-  .chain-connector{display:flex; align-items:center; gap:10px; padding-left:22px; margin-left:22px; border-left:2px dotted var(--line); height:26px;}
-  .chain-connector span{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.04em; color:var(--ink-faint); text-transform:uppercase;}
-  .chain-node-info{flex:1;min-width:0;}
-  .chain-node-info .selected-name{font-size:16.5px;}
-  .chain-node .role-tag{font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--brass); letter-spacing:0.04em; text-transform:uppercase; margin-bottom:1px;}
+  .rel-tree-wrap{overflow-x:auto; padding:8px 0 4px;}
+  .rel-tree{position:relative; margin:0 auto;}
+  .rnode{
+    position:absolute;
+    display:flex; align-items:center; gap:8px;
+    background:#fff;
+    border:1px solid #e6ddc2;
+    border-radius:11px;
+    padding:0 11px 0 8px;
+    text-align:left;
+    cursor:pointer;
+    box-shadow:0 1px 3px rgba(31,42,52,0.08);
+    transition:box-shadow .18s, border-color .18s;
+  }
+  .rnode:hover{border-color:var(--rust); box-shadow:0 4px 12px rgba(31,42,52,0.14);}
+  .rnode.endpoint{border:2px solid var(--rust-deep); box-shadow:0 3px 12px rgba(168,90,40,0.2);}
+  .rnode.apex{border:2px solid var(--brass); box-shadow:0 3px 12px rgba(143,114,56,0.25);}
+  .rnode .tn-av{width:30px;height:30px;font-size:11px;}
+  .rnode.m .tn-av{background:var(--teal);}
+  .rnode.f .tn-av{background:var(--rust);}
+  .rnode.u .tn-av{background:var(--ink-faint);}
+  .rtag{
+    position:absolute; top:-9px; left:10px;
+    font-family:'IBM Plex Mono',monospace; font-size:8.5px; font-weight:600;
+    letter-spacing:0.05em;
+    background:var(--rust-deep); color:#fff;
+    border-radius:999px;
+    padding:2px 8px;
+    white-space:nowrap;
+  }
+  .rnode.apex .rtag{background:var(--brass);}
+  .rseg{position:absolute; background:#d9cda6; border-radius:2px;}
   .rel-note{max-width:520px; margin:16px auto 0; font-size:13.5px; color:var(--ink-soft); font-style:italic; text-align:center;}
 
   /* ---------- Detail modal ---------- */
@@ -301,12 +366,21 @@
   #detailOverlay.open{display:flex;}
   #detailPanel{
     background:var(--card);
-    border:1px solid var(--ink);
+    border:1px solid #ddd2ae;
+    border-radius:18px;
     max-width:600px; width:100%;
     padding:24px 26px 26px;
     position:relative;
-    box-shadow:0 20px 50px rgba(31,42,52,0.3);
+    box-shadow:0 24px 60px rgba(31,42,52,0.32);
+    animation:modalIn .28s cubic-bezier(.22,.61,.36,1);
   }
+  @keyframes modalIn{
+    from{opacity:0; transform:scale(.94) translateY(10px);}
+    to{opacity:1; transform:none;}
+  }
+  #detailOverlay{animation:none;}
+  #detailOverlay.open{animation:overlayIn .2s ease;}
+  @keyframes overlayIn{from{background:rgba(31,42,52,0);} to{background:rgba(31,42,52,0.45);}}
   .detail-close{
     position:absolute; top:14px; right:14px;
     background:none; border:none; cursor:pointer;
@@ -325,7 +399,9 @@
     font-size:11px; letter-spacing:0.03em;
     background:var(--ink); color:var(--paper);
     border:1px solid var(--ink);
-    padding:8px 12px; cursor:pointer;
+    border-radius:10px;
+    padding:9px 14px; cursor:pointer;
+    transition:background .15s, border-color .15s;
   }
   .btn:hover{background:var(--rust-deep);border-color:var(--rust-deep);}
   .btn.ghost{background:transparent;color:var(--ink);}
@@ -334,8 +410,7 @@
   .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
   @media (max-width:600px){.detail-grid{grid-template-columns:1fr;}}
   .detail-section h4{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:0.06em; color:var(--brass); margin:0 0 8px; text-transform:uppercase;}
-  .person-chip{display:flex;align-items:center;gap:8px; padding:6px 4px; cursor:pointer; border-bottom:1px solid #ece3c9; background:none; border-left:none; border-right:none; border-top:none; width:100%; text-align:left;}
-  .person-chip:last-child{border-bottom:none;}
+  .person-chip{display:flex;align-items:center;gap:8px; padding:7px 8px; cursor:pointer; border:none; border-radius:9px; background:none; width:100%; text-align:left; transition:background .12s;}
   .person-chip:hover{background:var(--paper-deep);}
   .person-chip .avatar{width:28px;height:28px;font-size:11px;}
   .person-chip .cname{font-size:14.5px;}
@@ -347,11 +422,12 @@
 
   /* ---------- Directory ---------- */
   .directory-controls{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
-  .directory-controls input[type=text]{flex:1;min-width:180px; font-family:'Newsreader', serif; font-size:15px; padding:8px 10px; border:1px solid var(--ink); background:#fffdf6;}
+  .directory-controls input[type=text]{flex:1;min-width:180px; font-family:'Newsreader', serif; font-size:15px; padding:10px 14px; border:1px solid #c9bc93; border-radius:12px; background:#fffdf6; transition:border-color .15s, box-shadow .15s;}
+  .directory-controls input[type=text]:focus{outline:none; border-color:var(--rust); box-shadow:0 0 0 3px rgba(168,90,40,0.15);}
   .directory-count{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--ink-faint);}
   .directory-list{max-height:440px;overflow-y:auto;border-top:1px solid var(--card-edge);}
   .dir-letter{font-family:'IBM Plex Mono',monospace; font-size:11px;color:var(--brass); padding:10px 4px 4px; letter-spacing:0.05em;}
-  .dir-item{display:flex;align-items:center;gap:10px; padding:7px 4px; cursor:pointer; border-bottom:1px solid #ece3c9; background:none; border-left:none;border-right:none;border-top:none; width:100%; text-align:left;}
+  .dir-item{display:flex;align-items:center;gap:10px; padding:8px 10px; cursor:pointer; border:none; border-radius:10px; background:none; width:100%; text-align:left; transition:background .12s;}
   .dir-item:hover{background:var(--paper-deep);}
   .dir-item .avatar{width:26px;height:26px;font-size:10.5px;}
   .dir-item .diname{font-size:14.5px;flex:1;}
@@ -520,7 +596,9 @@
           <div class="picker-selected" id="youSelected"></div>
         </div>
         <div class="picker-mid">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+          <button class="swap-btn" id="swapBtn" aria-label="Swap the two people" title="Swap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.8"><path d="M7 16V4M7 4L3 8M7 4l4 4M17 8v12M17 20l4-4M17 20l-4-4"/></svg>
+          </button>
         </div>
         <div class="picker" id="targetPicker">
           <div class="picker-title">RELATED TO</div>
@@ -535,7 +613,7 @@
           <div class="rel-of" id="relOf"></div>
           <div class="rel-term" id="relTerm"></div>
         </div>
-        <div class="chain" id="relChain"></div>
+        <div class="rel-tree-wrap"><div class="rel-tree" id="relTree"></div></div>
         <div class="rel-note" id="relNote"></div>
       </div>
     </div>
@@ -917,7 +995,8 @@ function setupPicker(inputEl, dropdownEl, onSelect){
     else if(e.key==='ArrowUp'){ e.preventDefault(); activeIdx=Math.max(activeIdx-1,0); }
     else if(e.key==='Enter'){
       e.preventDefault();
-      if(activeIdx>=0 && matches[activeIdx]){ onSelect(matches[activeIdx]); dropdownEl.style.display='none'; }
+      const pick = activeIdx>=0 ? matches[activeIdx] : matches[0];
+      if(pick){ onSelect(pick); dropdownEl.style.display='none'; }
       return;
     } else { return; }
     items.forEach((el,i)=>el.classList.toggle('active', i===activeIdx));
@@ -928,12 +1007,26 @@ function setupPicker(inputEl, dropdownEl, onSelect){
   });
 }
 function renderSelected(container, id){
-  if(!id){ container.innerHTML=''; return; }
-  container.innerHTML = `${avatarHTML(id)}
-    <div>
+  const picker = container.closest('.picker');
+  const input = picker ? picker.querySelector('input[type=text]') : null;
+  if(!id){
+    container.innerHTML='';
+    if(input) input.style.display='';
+    return;
+  }
+  if(input) input.style.display='none';
+  container.innerHTML = `<div class="picker-chip">
+    ${avatarHTML(id)}
+    <div class="chip-info">
       <div class="selected-name">${displayName(id)}</div>
       <div class="selected-meta">${lifespan(id)}${person(id).birthPlace ? ' &middot; '+person(id).birthPlace : ''}</div>
-    </div>`;
+    </div>
+    <button class="chip-change" type="button">CHANGE</button>
+  </div>`;
+  container.querySelector('.chip-change').addEventListener('click', ()=>{
+    container.innerHTML='';
+    if(input){ input.style.display=''; input.value=''; input.focus(); }
+  });
 }
 
 /* ---------------- Tab state ---------------- */
@@ -974,7 +1067,8 @@ function renderRelationship(){
   if(youId===targetId){
     document.getElementById('relOf').textContent = displayName(targetId) + ' is related to ' + displayName(youId) + ' as:';
     document.getElementById('relTerm').textContent = 'The same person';
-    document.getElementById('relChain').innerHTML='';
+    document.getElementById('relTree').innerHTML='';
+    document.getElementById('relTree').style.width='0'; document.getElementById('relTree').style.height='0';
     document.getElementById('relNote').textContent='';
     return;
   }
@@ -983,35 +1077,110 @@ function renderRelationship(){
 
   if(rel.kind==='none'){
     document.getElementById('relTerm').textContent = 'No connection found on this register';
-    document.getElementById('relChain').innerHTML='';
+    document.getElementById('relTree').innerHTML='';
+    document.getElementById('relTree').style.width='0'; document.getElementById('relTree').style.height='0';
     document.getElementById('relNote').textContent = 'No blood or marriage link between these two people could be traced in the uploaded records.';
     return;
   }
   document.getElementById('relTerm').textContent = rel.label;
-  const chainEl = document.getElementById('relChain');
-  chainEl.innerHTML = '';
-  rel.chain.forEach((node, i)=>{
-    if(i>0){
-      const conn = document.createElement('div');
-      conn.className='chain-connector';
-      conn.innerHTML = `<span>${node.connector}</span>`;
-      chainEl.appendChild(conn);
-    }
-    const el = document.createElement('button');
-    el.className = 'chain-node' + (i===0||i===rel.chain.length-1 ? ' endpoint':'') + (node.role==='Common ancestor' ? ' ancestor':'');
-    el.innerHTML = `${avatarHTML(node.id)}
-      <div class="chain-node-info">
-        ${node.role ? `<div class="role-tag">${node.role}</div>`:''}
-        <div class="selected-name">${displayName(node.id)}</div>
-        <div class="selected-meta">${lifespan(node.id)}</div>
-      </div>`;
-    el.addEventListener('click', ()=>showDetail(node.id));
-    chainEl.appendChild(el);
-  });
+  renderRelTree(rel);
   let note = '';
   if(rel.kind==='inlaw') note = 'Connected by marriage, not by blood.';
   else if(rel.half) note = 'This connection runs through only one shared parent (a half relation).';
   document.getElementById('relNote').textContent = note;
+}
+
+/* ---- relationship path drawn as a small tree ---- */
+function renderRelTree(rel){
+  const host = document.getElementById('relTree');
+  host.innerHTML = '';
+  const chain = rel.chain || [];
+  if(!chain.length) return;
+
+  const RW = 168, RH = 54, RCOLP = RW + 46, RROWP = RH + 46, RPAD = 14;
+
+  /* assign logical row/col by walking the chain */
+  let row = 0, col = 0, hasAscended = false, flipped = false;
+  const nodes = chain.map((n, i) => {
+    if(i > 0){
+      const c = n.connector;
+      if(c === 'child of'){ row -= 1; hasAscended = true; }
+      else if(c === 'parent of'){
+        if(hasAscended && !flipped){ col += 1; flipped = true; }
+        row += 1;
+      }
+      else if(c === 'married to'){ col += 1; }
+    }
+    return { id:n.id, role:n.role, connector:n.connector, row, col };
+  });
+
+  /* apex (common ancestor) sits centered between the two columns */
+  const apexIdx = nodes.findIndex(n => n.role === 'Common ancestor');
+  if(apexIdx >= 0 && flipped) nodes[apexIdx].col += 0.5;
+
+  const minRow = Math.min(...nodes.map(n => n.row));
+  const minCol = Math.min(...nodes.map(n => n.col));
+  nodes.forEach(n => { n.row -= minRow; n.col -= minCol; });
+  const maxRow = Math.max(...nodes.map(n => n.row));
+  const maxCol = Math.max(...nodes.map(n => n.col));
+
+  const px = n => RPAD + n.col * RCOLP + RW/2;   /* center x */
+  const py = n => RPAD + n.row * RROWP + RH/2;   /* center y */
+  const width = RPAD*2 + maxCol * RCOLP + RW;
+  const height = RPAD*2 + maxRow * RROWP + RH;
+  host.style.width = width + 'px';
+  host.style.height = height + 'px';
+
+  /* connector segments */
+  const T = 2;
+  const segParts = [];
+  const H = (x, y, w) => segParts.push(`<div class="rseg" style="left:${x}px;top:${y - T/2}px;width:${w}px;height:${T}px"></div>`);
+  const V = (x, y, h) => segParts.push(`<div class="rseg" style="left:${x - T/2}px;top:${y}px;width:${T}px;height:${h}px"></div>`);
+
+  for(let i = 1; i < nodes.length; i++){
+    const a = nodes[i-1], b = nodes[i];
+    const c = b.connector;
+    if(c === 'married to'){
+      const y = py(a);
+      const x1 = Math.min(px(a), px(b)) + RW/2;
+      const x2 = Math.max(px(a), px(b)) - RW/2;
+      if(x2 > x1) H(x1, y, x2 - x1);
+      continue;
+    }
+    const upper = a.row < b.row ? a : b;
+    const lower = a.row < b.row ? b : a;
+    const ux = px(upper), uy = py(upper) + RH/2;
+    const lx = px(lower), ly = py(lower) - RH/2;
+    const midY = uy + (ly - uy)/2;
+    V(ux, uy, midY - uy);
+    if(Math.abs(ux - lx) > 1) H(Math.min(ux,lx), midY, Math.abs(ux - lx));
+    V(lx, midY, ly - midY);
+  }
+  host.insertAdjacentHTML('beforeend', segParts.join(''));
+
+  /* cards */
+  nodes.forEach((n, i) => {
+    const isEndpoint = (i === 0 || i === nodes.length - 1);
+    const isApex = n.role === 'Common ancestor';
+    let tag = '';
+    if(i === 0) tag = 'YOU';
+    else if(i === nodes.length - 1) tag = 'THEM';
+    else if(isApex) tag = 'COMMON ANCESTOR';
+    const el = document.createElement('button');
+    el.className = 'rnode ' + sexClass(n.id) + (isEndpoint ? ' endpoint' : '') + (isApex ? ' apex' : '');
+    el.style.left = (px(n) - RW/2) + 'px';
+    el.style.top = (py(n) - RH/2) + 'px';
+    el.style.width = RW + 'px';
+    el.style.height = RH + 'px';
+    el.innerHTML = `${tag ? `<span class="rtag">${tag}</span>` : ''}
+      <span class="tn-av">${initials(n.id)}</span>
+      <span class="tn-body">
+        <span class="tn-name">${displayName(n.id)}</span>
+        <span class="tn-years">${lifespan(n.id) || '&mdash;'}</span>
+      </span>`;
+    el.addEventListener('click', () => showDetail(n.id));
+    host.appendChild(el);
+  });
 }
 
 /* ---------------- Detail modal ---------------- */
@@ -1101,6 +1270,24 @@ function setTarget(id){
   renderSelected(document.getElementById('targetSelected'), id);
   renderRelationship();
 }
+/* if a picker input loses focus with no new pick, restore the existing chip */
+[['youInput','youSelected',()=>youId],['targetInput','targetSelected',()=>targetId]].forEach(([inp,sel,get])=>{
+  document.getElementById(inp).addEventListener('blur', ()=>{
+    setTimeout(()=>{
+      const id = get();
+      const selEl = document.getElementById(sel);
+      if(id && !selEl.innerHTML) renderSelected(selEl, id);
+    }, 180);
+  });
+});
+document.getElementById('swapBtn').addEventListener('click', ()=>{
+  if(!youId && !targetId) return;
+  const a = youId, b = targetId;
+  if(a) setTarget(a);
+  if(b) setYou(b); else { youId = null; renderSelected(document.getElementById('youSelected'), null); }
+  if(!a){ targetId = null; renderSelected(document.getElementById('targetSelected'), null); }
+  renderRelationship();
+});
 setupPicker(document.getElementById('youInput'), document.getElementById('youDropdown'), setYou);
 setupPicker(document.getElementById('targetInput'), document.getElementById('targetDropdown'), setTarget);
 setupPicker(document.getElementById('treeInput'), document.getElementById('treeDropdown'), (id)=>{
