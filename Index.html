@@ -1076,8 +1076,10 @@ function renderRelationship(){
   if(youId===targetId){
     document.getElementById('relOf').textContent = displayName(targetId) + ' is related to ' + displayName(youId) + ' as:';
     document.getElementById('relTerm').textContent = 'The same person';
-    document.getElementById('relTree').innerHTML='';
-    document.getElementById('relTree').style.width='0'; document.getElementById('relTree').style.height='0';
+    const rt1 = document.getElementById('relTree');
+    rt1.innerHTML=''; rt1.style.width='0'; rt1.style.height='0'; rt1.style.transform=''; rt1.style.left='';
+    rt1.parentElement.style.height='auto';
+    lastRelTree = null;
     document.getElementById('relNote').textContent='';
     return;
   }
@@ -1086,8 +1088,10 @@ function renderRelationship(){
 
   if(rel.kind==='none'){
     document.getElementById('relTerm').textContent = 'No connection found on this register';
-    document.getElementById('relTree').innerHTML='';
-    document.getElementById('relTree').style.width='0'; document.getElementById('relTree').style.height='0';
+    const rt2 = document.getElementById('relTree');
+    rt2.innerHTML=''; rt2.style.width='0'; rt2.style.height='0'; rt2.style.transform=''; rt2.style.left='';
+    rt2.parentElement.style.height='auto';
+    lastRelTree = null;
     document.getElementById('relNote').textContent = 'No blood or marriage link between these two people could be traced in the uploaded records.';
     return;
   }
@@ -1100,7 +1104,20 @@ function renderRelationship(){
 }
 
 /* ---- relationship path drawn as a small tree ---- */
+let lastRelTree = null;
+window.addEventListener('resize', (()=>{
+  let t = null;
+  return ()=>{
+    clearTimeout(t);
+    t = setTimeout(()=>{
+      if(lastRelTree && document.getElementById('relResult').style.display === 'block'){
+        renderRelTree(lastRelTree);
+      }
+    }, 180);
+  };
+})());
 function renderRelTree(rel){
+  lastRelTree = rel;
   const host = document.getElementById('relTree');
   host.innerHTML = '';
   const chain = rel.chain || [];
@@ -1139,6 +1156,17 @@ function renderRelTree(rel){
   const height = RPAD*2 + maxRow * RROWP + RH;
   host.style.width = width + 'px';
   host.style.height = height + 'px';
+
+  /* scale the whole diagram down to fit the panel width (min 0.45, then it scrolls) */
+  const wrap = host.parentElement;
+  const availW = wrap.clientWidth || width;
+  const s = Math.max(0.45, Math.min(1, availW / width));
+  host.style.transformOrigin = 'top left';
+  host.style.transform = 'scale(' + s + ')';
+  host.style.position = 'relative';
+  host.style.left = Math.max(0, (availW - width * s) / 2) + 'px';
+  host.style.margin = '0';
+  wrap.style.height = (height * s) + 'px';
 
   /* connector segments */
   const T = 2;
